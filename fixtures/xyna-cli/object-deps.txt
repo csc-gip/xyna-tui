@@ -1,0 +1,28 @@
+086debd6b848:~/xyna_001/server$ x listwfs -workspaceName "default workspace"
+Listing deployment status information for 1 elements...
+        Name: csc.test.TestKeyInfo, deployment status: DEPLOYED
+086debd6b848:~/xyna_001/server$ x listwfs -applicationName Base -versionName 1.1.4
+Listing deployment status information for 6 elements...
+        Name: xmcp.manualinteraction.ManualInteraction, deployment status: DEPLOYED_STOPPED
+        Name: xnwh.persistence.Count, deployment status: DEPLOYED_STOPPED
+        Name: xnwh.persistence.Delete, deployment status: DEPLOYED_STOPPED
+        Name: xnwh.persistence.Query, deployment status: DEPLOYED_STOPPED
+        Name: xnwh.persistence.Store, deployment status: DEPLOYED_STOPPED
+        Name: xnwh.persistence.Update, deployment status: DEPLOYED_STOPPED
+086debd6b848:~/xyna_001/server$ x printdependencies -workspaceName "default workspace" -object csc.test.TestKeyInfo -objectType Workflow -r
+Found the following dependency tree:
+* WORKFLOW: csc.test.TestKeyInfo (Workspace 'default workspace')
+ . * ORDERTYPE: csc.test.TestKeyInfo (Workspace 'default workspace')
+086debd6b848:~/xyna_001/server$ x printdependencies -applicationName Base -versionName 1.1.4 -object xnwh.persistence.Query -objectType Workflow -r
+Found the following dependency tree:
+* WORKFLOW: xnwh.persistence.Query (Application 'Base', Version '1.1.4')
+ . * ORDERTYPE: xnwh.persistence.Query (Application 'Base', Version '1.1.4')
+ . * WORKFLOW: xdev.xtestfactory.infrastructure.actions.ExportTestDataToCSV (Application 'XynaTestFactoryInfrastructure', Version '9.0.3')
+ .  . * ORDERTYPE: xdev.xtestfactory.infrastructure.actions.ExportTestDataToCSV (Application 'XynaTestFactoryInfrastructure', Version '9.0.3')
+ .  . * WORKFLOW: xdev.xtestfactory.infrastructure.actions.ExportTestCases (Application 'XynaTestFactoryInfrastructure', Version '9.0.3')
+ .  .  . * ORDERTYPE: xdev.xtestfactory.infrastructure.actions.ExportTestCases (Application 'XynaTestFactoryInfrastructure', Version '9.0.3')
+ .  .  . * WORKFLOW: xdev.xtestfactory.infrastructure.gui.ExportTestCases (Application 'XynaTestFactoryInfrastructure', Version '9.0.3')
+ .  .  .  . * ORDERTYPE: xdev.xtestfactory.infrastructure.gui.ExportTestCases (Application 'XynaTestFactoryInfrastructure', Version '9.0.3')
+ . * WORKFLOW: xmcp.catalog.gui.CompareFeatureMappings (Workspace 'rdcatalog_ws')
+ .  . * ORDERTYPE: xmcp.catalog.gui.CompareFeatureMappings (Workspace 'rdcatalog_ws')
+086debd6b848:~/xyna_001/server$

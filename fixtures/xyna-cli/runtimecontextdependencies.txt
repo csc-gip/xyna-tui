@@ -1,0 +1,119 @@
+086debd6b848:~/xyna_001/server$ x listruntimecontextdependencies 
+Application 'CapacityMgmt', Version '1.0.3'
+  Application 'Processing', Version '1.0.28'
+Application 'Connection', Version '1.0.15'
+  Application 'Base', Version '1.1.4'
+Application 'FileMgmt', Version '1.0.11'
+  Application 'Processing', Version '1.0.28'
+Application 'GitIntegration', Version '1.0.45'
+  Application 'GuiHttp', Version '1.4.3'
+Application 'GlobalApplicationMgmt', Version '1.0.11'
+  Application 'FileMgmt', Version '1.0.11'
+  Application 'Node', Version '1.0.4'
+  Application 'Processing', Version '1.0.28'
+Application 'GuiHttp', Version '1.4.3'
+  Application 'GlobalApplicationMgmt', Version '1.0.11'
+  Application 'Http', Version '1.5.9'
+  Application 'UserRoleManagement', Version '1.0.8'
+  Application 'XynaPropertyMgmt', Version '1.0.3'
+  Application 'ZetaFramework', Version '0.6.64'
+Application 'Http', Version '1.5.9'
+  Application 'Processing', Version '1.0.28'
+Application 'Json', Version '1.5.3'
+  Application 'Base', Version '1.1.4'
+Application 'Net', Version '1.0.7'
+  Application 'Base', Version '1.1.4'
+Application 'Node', Version '1.0.4'
+  Application 'Base', Version '1.1.4'
+Application 'OAS_Base', Version '1.7.24'
+  Application 'FileMgmt', Version '1.0.11'
+  Application 'Http', Version '1.5.9'
+  Application 'Json', Version '1.5.3'
+  Application 'XynaPropertyMgmt', Version '1.0.3'
+  Application 'ZetaFramework', Version '0.6.64'
+Application 'Processing', Version '1.0.28'
+  Application 'Base', Version '1.1.4'
+Application 'RegExp', Version '1.0.2'
+  Application 'Base', Version '1.1.4'
+Application 'SSH', Version '2.0.42'
+  Application 'Connection', Version '1.0.15'
+Application 'UserRoleManagement', Version '1.0.8'
+  Application 'UserSessionMgmt', Version '1.0.3'
+Application 'UserSessionMgmt', Version '1.0.3'
+  Application 'Base', Version '1.1.4'
+Application 'XynaPropertyMgmt', Version '1.0.3'
+  Application 'Base', Version '1.1.4'
+Application 'XynaTestFactoryInfrastructure', Version '9.0.3'
+  Application 'Processing', Version '1.0.28'
+  Application 'RegExp', Version '1.0.2'
+  Application 'UserSessionMgmt', Version '1.0.3'
+  Application 'XynaPropertyMgmt', Version '1.0.3'
+  Application 'ZetaFramework', Version '0.6.64'
+Application 'ZetaFramework', Version '0.6.64'
+  Application 'Processing', Version '1.0.28'
+Workspace 'default workspace'
+  Application 'Base', Version '1.1.4'
+  Application 'Http', Version '1.5.9'
+  Application 'Processing', Version '1.0.28'
+  Application 'SSH', Version '2.0.42'
+Workspace 'rdcatalog_ws'
+  Application 'Processing', Version '1.0.28'
+086debd6b848:~/xyna_001/server$ x help listruntimecontextdependencies 
+usage: listruntimecontextdependencies [-applicationName <arg>] [-t] [-versionName <arg>]
+       [-workspaceName <arg>]
+List all requirements of the specified runtime context. If no runtime context is specified all
+runtime context dependencies will be listed
+   -applicationName <arg>          The name of the application.
+   -t,--asTable                    Lists the output in the form of a well formatted table
+   -versionName <arg>              The name of the version.
+   -workspaceName <arg>            The name of the workspace.
+086debd6b848:~/xyna_001/server$ x help changeruntimecontextdependencies 
+usage: changeruntimecontextdependencies -changes <args> [-f] [-ownerApplicationName <arg>]
+       [-ownerVersionName <arg>] [-ownerWorkspaceName <arg>]
+Changes runtime context dependencies.
+Changes the set of runtime context dependencies in a single atomic operation.
+Format for changes {ACTION}:{RUNTIME_CONTEXT_STRING_REPRESENTATION}
+{ACTION}:  a or r for either addition or removal
+{RUNTIME_CONTEXT_STRING_REPRESENTATION}: either the name of the workspace,
+{APPLICATION_NAME}/{APPLICATION_VERSION} or {APPLICATION_DEFINITION_NAME}//{PARENT_WORKSPACE}
+Examples:
+... -changes a:devel
+add a runtime context dependency to the devel workspace
+... -changes r:prod/1.0
+remove a runtime context dependency to the application 'prod' in version '1.0'
+... -changes a:prod//devel
+add a runtime context dependency to the 'prod' application definition defined in the workspace
+'devel'
+... -changes r:prod/1.0 a:prod/2.0
+replace the dependency to application 'prod' in version '1.0' with a dependency on the newer version
+'2.0'
+   -changes <args>                      Specification of the changes to the owner runtime context.
+   -f,--force                           Ignore nonfatal validation errors
+   -ownerApplicationName <arg>          The name of the owner application.
+   -ownerVersionName <arg>              The name of the owner application version.
+   -ownerWorkspaceName <arg>            The name of the owner workspace.
+086debd6b848:~/xyna_001/server$ x help addruntimecontextdependency 
+usage: addruntimecontextdependency [-f] [-ownerApplicationName <arg>] [-ownerVersionName <arg>]
+       [-ownerWorkspaceName <arg>] [-requirementApplicationName <arg>] [-requirementVersionName
+       <arg>] [-requirementWorkspaceName <arg>]
+Defines a new runtime context dependency.
+   -f,--force                                 Ignore nonfatal validation errors
+   -ownerApplicationName <arg>                The name of the owner application.
+   -ownerVersionName <arg>                    The name of the owner application version.
+   -ownerWorkspaceName <arg>                  The name of the owner workspace.
+   -requirementApplicationName <arg>          The name of the required application.
+   -requirementVersionName <arg>              The name of the required application version.
+   -requirementWorkspaceName <arg>            The name of the required workspace.
+086debd6b848:~/xyna_001/server$ x help removeruntimecontextdependency 
+usage: removeruntimecontextdependency [-f] [-ownerApplicationName <arg>] [-ownerVersionName <arg>]
+       [-ownerWorkspaceName <arg>] [-requirementApplicationName <arg>] [-requirementVersionName
+       <arg>] [-requirementWorkspaceName <arg>]
+Removes an existing runtime context dependency.
+   -f,--force                                 Ignore nonfatal validation errors
+   -ownerApplicationName <arg>                The name of the owner application.
+   -ownerVersionName <arg>                    The name of the owner application version.
+   -ownerWorkspaceName <arg>                  The name of the owner workspace.
+   -requirementApplicationName <arg>          The name of the required application.
+   -requirementVersionName <arg>              The name of the required application version.
+   -requirementWorkspaceName <arg>            The name of the required workspace.
+086debd6b848:~/xyna_001/server$

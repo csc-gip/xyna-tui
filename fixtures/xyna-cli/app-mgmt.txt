@@ -1,0 +1,36 @@
+086debd6b848:~/xyna_001/server$ x help startapplication 
+usage: startapplication -applicationName <arg> [-c] [-enableOrderEntrance <args>] [-f] [-g]
+       -versionName <arg>
+Start an application and enable all triggers and filters instances.
+   -applicationName <arg>               The name of the application.
+   -c,--enableCrons                     Enable all crons of the version.
+   -enableOrderEntrance <args>          Enables only the specified order entrance. Allowed values
+                                        are CLI and RMI
+   -f,--force                           On cluster configuration do not check whether the
+                                        application is installed on other nodes.
+   -g,--global                          On cluster configuration perform the command on all nodes.
+   -versionName <arg>                   The name of the version of the application.
+086debd6b848:~/xyna_001/server$ x help stopapplication 
+usage: stopapplication -applicationName <arg> [-disableOrderEntrance <args>] [-g] -versionName <arg>
+Stop an application and disable all triggers and filters instances.
+   -applicationName <arg>                The name of the application.
+   -disableOrderEntrance <args>          Disables only the specified order entrance. Allowed values
+                                         are CLI and RMI
+   -g,--global                           On cluster configuration perform the command on all nodes.
+   -versionName <arg>                    The name of the version of the application.
+086debd6b848:~/xyna_001/server$ x help removeapplication 
+usage: removeapplication -applicationName <arg> [-c] [-f] [-ff] [-g] [-parentWorkspace <arg>] [-v]
+       [-versionName <arg>]
+Remove an application. The application has to be in state STOPPED or AUDIT_MODE
+   -applicationName <arg>          The name of the application.
+   -c,--cleanupXmls                Deprecated. Does nothing.
+   -f,--force                      If set, running orders will be killed and cron like orders
+                                   removed.
+   -ff,--extraforce                If set, the application will be removed even if the xmomversion
+                                   entry doesn't exist.
+   -g,--global                     On cluster configuration perform the command on all nodes.
+   -parentWorkspace <arg>          The name of the workspace.
+   -v,--verbose                    Enable verbose output
+   -versionName <arg>              The name of the version of the application or empty if the
+                                   workingset definition of the application is to be removed.
+086debd6b848:~/xyna_001/server$

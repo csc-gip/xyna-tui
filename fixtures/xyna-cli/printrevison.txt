@@ -1,0 +1,9 @@
+086debd6b848:~/xyna_001/server$ x printrevision 
+-1
+086debd6b848:~/xyna_001/server$ x help printrevision 
+usage: printrevision [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]
+Print revision of given runtime context.
+   -applicationName <arg>          The name of the application.
+   -versionName <arg>              The version of the application.
+   -workspaceName <arg>            The name of the workspace.
+086debd6b848:~/xyna_001/server$

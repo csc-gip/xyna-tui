@@ -1,0 +1,11 @@
+086debd6b848:~/xyna_001/server$ x showdeploymentitemdetails -workspaceName "default workspace" -objectName csc.test.TestKeyInfo
+Type                : Workflow
+Name                : csc.test.TestKeyInfo
+RuntimeContext      : Workspace 'default workspace'
+State               : DEPLOYED
+086debd6b848:~/xyna_001/server$ x showdeploymentitemdetails -applicationName Base -versionName 1.1.4 -objectName xmcp.manualinteraction.ManualInteraction
+Type                : Workflow
+Name                : xmcp.manualinteraction.ManualInteraction
+RuntimeContext      : Application 'Base', Version '1.1.4'
+State               : DEPLOYED
+086debd6b848:~/xyna_001/server$

@@ -1,0 +1,48 @@
+086debd6b848:~/xyna_001/server$ x listwfs
+Listing deployment status information for 1 elements...
+        Name: csc.test.TestKeyInfo, deployment status: DEPLOYED
+086debd6b848:~/xyna_001/server$ x help listwfs
+usage: listwfs [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]
+Lists all workflows and the corresponding deployment status.
+   -applicationName <arg>          The name of the application.
+   -versionName <arg>              The name of the version.
+   -workspaceName <arg>            The name of the workspace.
+086debd6b848:~/xyna_001/server$ x listdom
+listdomains  listdoms     
+086debd6b848:~/xyna_001/server$ x listdoms
+Listing information for 4 deployed datatypes...
+Name: GitIntegation
+Name: OAS_Base
+Name: xact.http.HTTPService
+Name: xfmg.xfmon.protocolmsg.ProtocolMessageStore
+
+086debd6b848:~/xyna_001/server$ x help listdoms
+usage: listdoms [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]
+List all deployed datatypes.
+   -applicationName <arg>          The name of the application.
+   -versionName <arg>              The name of the version.
+   -workspaceName <arg>            The name of the workspace.
+086debd6b848:~/xyna_001/server$ x help listexceptions 
+usage: listexceptions [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]
+List all deployed exceptions.
+   -applicationName <arg>          The name of the application.
+   -versionName <arg>              The name of the version.
+   -workspaceName <arg>            The name of the workspace.
+086debd6b848:~/xyna_001/server$ x listexceptions 
+No exceptions registered for server
+086debd6b848:~/xyna_001/server$ x listexceptions -applicationName Base
+Listing information for 13 deployed exceptions...
+Name: xact.connection.DetectedError
+Name: core.exception.XynaException
+Name: xnwh.persistence.XMOMStorableValidationException
+Name: xprc.waitsuspend.WaitingError
+Name: xnwh.persistence.XMOMStorableAccessException
+Name: core.exception.Exception
+Name: xmcp.manualinteraction.ManualInteractionAbortedException
+Name: xnwh.persistence.XMOMStorableMaxLengthValidationException
+Name: core.exception.XynaExceptionBase
+Name: base.date.InvalidDateStringException
+Name: xprc.synchronization.DuplicateCorrelationID
+Name: xprc.synchronization.TimeoutDuringSynchronization
+Name: xprc.waitsuspend.SuspensionError
+086debd6b848:~/xyna_001/server$

@@ -1,0 +1,43 @@
+086debd6b848:~/xyna_001/server$ x help createworkspace
+usage: createworkspace [-revision <arg>] -workspaceName <arg>
+Create a new workspace and copy XMOM xmls and workspace dependent XynaProperties from default
+workspace.
+   -revision <arg>               Revision number to use for the new workspace.
+   -workspaceName <arg>          The name of the new workspace
+086debd6b848:~/xyna_001/server$ x help removeworkspace 
+usage: removeworkspace [-c] [-f] -workspaceName <arg>
+Removes a workspace.
+   -c,--cleanupXmls              If set, parts for audits of orders will also be removed.
+   -f,--force                    If set, running orders will be killed and cron like orders removed.
+   -workspaceName <arg>          The name of the workspace to be removed
+086debd6b848:~/xyna_001/server$ x help clearworkspace 
+usage: clearworkspace [-f] [-removeSubtypesOf <args>] -workspaceName <arg>
+Clears a workspace.
+.
+The following objects will be removed from the workspace:
+- trigger instances
+- triggers
+- filter instances
+- filters
+- xmom objects (workflows, datatypes, services, exceptions)
+- shared libraries
+- application definitions
+.
+For each of these categories one can define objects not to be removed in comma separated lists as
+Xyna Properties:
+- xfmg.xfctrl.appmgmt.clearworkingset.blacklist.triggerinstances.<workspaceName>
+- xfmg.xfctrl.appmgmt.clearworkingset.blacklist.triggers.<workspaceName>
+- xfmg.xfctrl.appmgmt.clearworkingset.blacklist.filterinstances.<workspaceName>
+- xfmg.xfctrl.appmgmt.clearworkingset.blacklist.filters.<workspaceName>
+- xfmg.xfctrl.appmgmt.clearworkingset.blacklist.xmomobjects.<workspaceName>
+- xfmg.xfctrl.appmgmt.clearworkingset.blacklist.sharedlibs.<workspaceName>
+- xfmg.xfctrl.appmgmt.clearworkingset.blacklist.applications.<workspaceName>
+.
+.
+   -f,--force                        Aborts all running orders and removes Cron Like Orders
+   -removeSubtypesOf <args>          Base types whose subtypes should be removed except they are
+                                     directly needed by an blacklisted object (by default subtypes
+                                     of service-outputs of blacklisted applications will not be
+                                     removed). Use '*' for all subtypes.
+   -workspaceName <arg>              The name of the workspace.
+086debd6b848:~/xyna_001/server$

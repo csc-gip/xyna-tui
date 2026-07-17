@@ -1,0 +1,237 @@
+FACTORY_CLI_PORT="TOKEN_FACTORY_CLI_PORT"
+INSTANCE_NUMBER="TOKEN_INSTANCE_NUMBER"
+NETCAT="TOKEN_NETCAT"
+VERBOSE="false"
+NAMEDPIPE=
+
+# erkennung vom ende des outputs der factory
+filter_output () {
+  trap eoftofifo SIGPIPE SIGHUP SIGINT SIGQUIT SIGTERM;
+  local LINE
+  while IFS='' read -r LINE; do
+      echo "${LINE}"
+  done
+  CALLRESULT=${LINE}
+  echo "${CALLRESULT}" >&2 
+  # netcat beenden (bugz 23034)
+  echo -n "" > "${NAMEDPIPE}_2"
+}
+
+
+cleanup() {
+  local DELDIR="$(dirname "$NAMEDPIPE")"
+  rm -rf "$DELDIR"
+  exit
+}
+
+eoftofifo() {
+  # das wartende cat beenden, falls filter_output abgebrochen wird (z.b. xynafactory.sh <langlaufender befehl> | less -> quit vor beendigung des befehls)
+  echo -n "" > "${NAMEDPIPE}_2"
+  exit
+}
+
+
+fast_factory_call () {
+  local GROUP_SEP=$'\x1D';            #\x1D=GS Group Separator
+  local RECORD_SEP=$'\x1E';           #\x1E=RS Record Separator
+  local END_OF_TRANSMISSION=$'\x04';  #\x04=EOT End of Transmission
+  local CALL="";
+  local SEP=${GROUP_SEP};
+  for i in "$@"; do 
+    CALL="${CALL}$i${SEP}"
+    SEP=${RECORD_SEP};
+  done
+  CALL="${CALL}${GROUP_SEP}"
+  if [[ -n ${XYNA_CLI_ADDITIONAL+x} ]] ; then
+    CALL="${CALL}${XYNA_CLI_ADDITIONAL}${RECORD_SEP}"
+  fi
+  CALL="${CALL}${END_OF_TRANSMISSION}"
+
+  local CALLRESULT #hier schon local, damit local nicht ExitCode kaputt macht
+  exec 3>&1 #Output umleiten, so dass nicht von $(...) gefangen
+  set -o pipefail #local RC=$? soll alle Pipe-Commands auswerten, nicht nur das letzte
+
+  # namedpipe erstellen und dafuer sorgen, dass sie durch die trap automatisch aufgeraeumt wird
+  NAMEDPIPE="$(mktemp -d)/nr$$"
+  mkfifo "$NAMEDPIPE"
+  mkfifo "${NAMEDPIPE}_2"
+  trap cleanup SIGHUP SIGINT SIGQUIT SIGTERM
+  (
+    exec 6>"$NAMEDPIPE"
+    echo -n "${CALL}" >&6
+    # warten, dass netcat fertig ist
+    cat "${NAMEDPIPE}_2" >> /dev/null
+    # pipe schliessen
+    exec 6>&-
+  ) & 
+
+  # per netcat mit factory kommunizieren. input fuer netcat sind die befehlsparameter und die pipe, die am ende die beendigung von netcat das eof enthaelt
+  CALLRESULT=$( { ${NETCAT} localhost ${FACTORY_CLI_PORT} < "$NAMEDPIPE" | filter_output 1>&3 ; } 2>&1 );
+  local RC=$?
+
+  # aufraeumenA
+  local DELDIR="$(dirname "$NAMEDPIPE")"
+  rm -rf "$DELDIR"
+  trap SIGHUP SIGINT SIGQUIT SIGTERM
+
+  if [[ "${RC}" != "0" ]] ; then
+    if [[ "${CALLRESULT}" == *Connection\ refused* ]] ; then
+      CALL_RESULT="Unable to execute command \"${1}\": Xyna Factory is not running on port ${FACTORY_CLI_PORT}#";
+      return 254;
+    else
+      fast_factory_status
+      local STATUS=$?
+      if [[ 5 == ${STATUS} ]] ; then
+        CALL_RESULT="Unable to execute command \"${1}\": Xyna Factory is not running on port ${FACTORY_CLI_PORT}#";
+        return 254;
+        #oder aber bei sehr gravierenden Fehlern hat fast_factory_status bereits echo und exit 255; aufgerufen
+      else
+        echo "Unexpected: response \"${CALLRESULT}\" and status \"${STATUS_RESULT}\"";
+        exit 255;
+      fi;
+    fi;
+  fi;
+  
+  case ${CALLRESULT} in
+    ENDOFSTREAM_SUCCESS)
+      return 0;
+      ;;
+    ENDOFSTREAM_SILENT)
+      return 0;
+      ;;
+    ENDOFSTREAM_SUCCESS_BUT_NO_CHANGE)
+      return 9;
+      ;;
+    ENDOFSTREAM_UNKNOWN_COMMAND)
+      return 10;
+      ;;
+    ENDOFSTREAM_REJECTED)
+      return 11;
+      ;;
+    ENDOFSTREAM_SUCCESS_WITH_PROBLEM)
+      return 12;
+      ;;
+    ENDOFSTREAM_XYNA_EXCEPTION)
+      return 253;
+      ;;
+    ENDOFSTREAM_COMMUNICATION_FAILED)
+      return 254;
+      ;;
+    ENDOFSTREAM_GENERAL_ERROR)
+      return 255;
+      ;;
+    ENDOFSTREAM_STATUS_STARTING)
+      return 1;
+      ;;
+    ENDOFSTREAM_STATUS_STOPPING)
+      return 6;
+      ;;
+    ENDOFSTREAM_STATUS_UP_AND_RUNNING*)
+      return 0;
+      ;;
+    *)
+      echo "Unexpected ReturnCode ${RC} ${CALLRESULT}";
+      exit 255;
+      ;;
+  esac
+}
+
+fast_factory_status () {
+  local CALL=$'status\x1D\x1D\x04'; #GS GS EOT
+  local RESPONSE  #hier schon local, damit local nicht ExitCode kaputt macht
+  RESPONSE="$(echo -n ${CALL} | ${NETCAT} -v localhost ${FACTORY_CLI_PORT} 2>&1 )";
+  local RC=$?
+  if [[ "${RC}" != "0" ]] ; then
+    if [[ "${RESPONSE}" == *Connection\ refused* ]] ; then
+      STATUS_RESULT="Status: 'Not running'";
+      return 5;
+    else 
+      echo "Unexpected: ${RESPONSE}";
+      exit 255;
+    fi
+  fi;
+  local MSG=${RESPONSE%ENDOFSTREAM*}
+  local RC=${RESPONSE:${#MSG}}
+  case ${RC} in
+    ENDOFSTREAM_STATUS_UP_AND_RUNNING*)
+      STATUS_RESULT="Status: 'Up and running'";
+      return 0;
+      ;;
+    ENDOFSTREAM_STATUS_STARTING*)
+      STATUS_RESULT="Status: 'Starting'";
+      return 1;
+      ;;
+    ENDOFSTREAM_STATUS_ALREADY_RUNNING*)
+      STATUS_RESULT="Status: 'Up and running'";
+      return 2;
+      ;;
+    ENDOFSTREAM_STATUS_NOT_RUNNING*)
+      STATUS_RESULT="Status: 'Not running'";
+      return 5;
+      ;;
+    ENDOFSTREAM_STATUS_STOPPING*)
+      STATUS_RESULT="Status: 'Stopping'";
+      return 6;
+      ;;
+    *)
+      echo "Unexpected ReturnCode ${RC}";
+      exit 255;
+      ;;
+  esac
+
+}
+
+if [[ "$1" == "-q" ]] ; then
+  CMD="$2";
+  QUIET="true";
+else 
+  CMD="$1";
+  QUIET="false";
+fi
+case "${CMD}" in #lowercase
+  status)
+    fast_factory_status
+    RC=$?
+    if [[ "${QUIET}" == "false" ]] ; then
+      echo "${STATUS_RESULT}"
+    fi
+    if [[ "$@" == "status -v" && ( $RC -lt 3 || $RC -eq 6 ) ]] ; then
+      fast_factory_call "extendedstatus"
+      if [[ ${#CALL_RESULT} > 1 ]] ; then
+        echo "${CALL_RESULT:0:${#CALL_RESULT}-1}" #Zeilenumbruch abschneiden
+      fi
+    fi
+    exit ${RC}
+    ;;
+  start|stop|restart)
+    ;;
+  install)
+    ;;
+  create_cluster_using_oracle|join_cluster_using_oracle|remove_cluster_using_oracle)
+    ;;
+  create_cluster|join_cluster|remove_cluster)
+   ;;
+  -n|-d|-f|-F)
+    ;;
+  -q)
+    #unerwartetes doppeltes -q... wird halt langsamer bearbeitet
+    ;;
+  *)
+    if [[ "${QUIET}" == "true" ]] ; then
+      shift 1
+      fast_factory_call "$@"
+      RC=$?
+      exit ${RC}
+    else
+      fast_factory_call "$@"
+      RC=$?
+      if [[ ${#CALL_RESULT} > 1 ]] ; then
+        echo "${CALL_RESULT:0:${#CALL_RESULT}-1}" #Zeilenumbruch abschneiden
+      fi
+      exit ${RC}
+    fi
+    ;;
+esac
+
+unset CMD QUIET
+

@@ -1,0 +1,61 @@
+086debd6b848:~/xyna_001/server$ x listapplications 
+RuntimeApplications:
+  'Base' '1.1.4' (109 objects + dependencies), STATUS: 'STOPPED' - ''
+  'CapacityMgmt' '1.0.3' (8 objects + dependencies), STATUS: 'STOPPED' - ''
+  'Connection' '1.0.15' (27 objects + dependencies), STATUS: 'STOPPED'
+  'FileMgmt' '1.0.11' (8 objects + dependencies), STATUS: 'STOPPED' - ''
+  'GitIntegration' '1.0.45' (96 objects + dependencies), STATUS: 'STOPPED'
+  'GlobalApplicationMgmt' '1.0.11' (13 objects + dependencies), STATUS: 'STOPPED'
+  'GuiHttp' '1.4.3' (632 objects + dependencies), STATUS: 'RUNNING' - ''
+  'Http' '1.5.9' (18 objects + dependencies), STATUS: 'STOPPED'
+  'Json' '1.5.3' (2 objects + dependencies), STATUS: 'STOPPED' - ''
+  'Net' '1.0.7' (23 objects + dependencies), STATUS: 'STOPPED' - ''
+  'Node' '1.0.4' (4 objects + dependencies), STATUS: 'STOPPED' - ''
+  'OAS_Base' '1.7.24' (55 objects + dependencies), STATUS: 'STOPPED'
+  'Processing' '1.0.28' (67 objects + dependencies), STATUS: 'STOPPED' - ''
+  'RegExp' '1.0.2' (3 objects + dependencies), STATUS: 'STOPPED' - ''
+  'SSH' '2.0.42' (41 objects + dependencies), STATUS: 'STOPPED' - ''
+  'UserRoleManagement' '1.0.8' (1 objects + dependencies), STATUS: 'STOPPED' - ''
+  'UserSessionMgmt' '1.0.3' (14 objects + dependencies), STATUS: 'STOPPED' - ''
+  'XynaPropertyMgmt' '1.0.3' (16 objects + dependencies), STATUS: 'STOPPED' - ''
+  'XynaTestFactoryInfrastructure' '9.0.3' (105 objects + dependencies), STATUS: 'STOPPED' - ''
+  'ZetaFramework' '0.6.64' (53 objects + dependencies), STATUS: 'STOPPED' - ''
+086debd6b848:~/xyna_001/server$ x listapplications -t
+ApplicationName               │ VersionName │ Workspace │ Status  │ Objects │ Revision
+══════════════════════════════╪═════════════╪═══════════╪═════════╪═════════╪═════════
+Base                          │ 1.1.4       │ -         │ STOPPED │ 109     │ 1       
+CapacityMgmt                  │ 1.0.3       │ -         │ STOPPED │ 8       │ 9       
+Connection                    │ 1.0.15      │ -         │ STOPPED │ 27      │ 4       
+FileMgmt                      │ 1.0.11      │ -         │ STOPPED │ 8       │ 6       
+GitIntegration                │ 1.0.45      │ -         │ STOPPED │ 96      │ 15      
+GlobalApplicationMgmt         │ 1.0.11      │ -         │ STOPPED │ 13      │ 8       
+GuiHttp                       │ 1.4.3       │ -         │ RUNNING │ 632     │ 14      
+Http                          │ 1.5.9       │ -         │ STOPPED │ 18      │ 5       
+Json                          │ 1.5.3       │ -         │ STOPPED │ 2       │ 16      
+Net                           │ 1.0.7       │ -         │ STOPPED │ 23      │ 2       
+Node                          │ 1.0.4       │ -         │ STOPPED │ 4       │ 7       
+OAS_Base                      │ 1.7.24      │ -         │ STOPPED │ 55      │ 17      
+Processing                    │ 1.0.28      │ -         │ STOPPED │ 67      │ 3       
+RegExp                        │ 1.0.2       │ -         │ STOPPED │ 3       │ 18      
+SSH                           │ 2.0.42      │ -         │ STOPPED │ 41      │ 22      
+UserRoleManagement            │ 1.0.8       │ -         │ STOPPED │ 1       │ 11      
+UserSessionMgmt               │ 1.0.3       │ -         │ STOPPED │ 14      │ 10      
+XynaPropertyMgmt              │ 1.0.3       │ -         │ STOPPED │ 16      │ 12      
+XynaTestFactoryInfrastructure │ 9.0.3       │ -         │ STOPPED │ 105     │ 19      
+ZetaFramework                 │ 0.6.64      │ -         │ STOPPED │ 53      │ 13      
+086debd6b848:~/xyna_001/server$ ^C
+086debd6b848:~/xyna_001/server$ x listworkspaces 
+default workspace, STATUS: 'OK'
+rdcatalog_ws, STATUS: 'WARNING'
+
+086debd6b848:~/xyna_001/server$ x listworkspaces -t
+Name              │ Revision │ Status  │ Problems │ Requirements
+══════════════════╪══════════╪═════════╪══════════╪═════════════
+default workspace │ -1       │ OK      │ 0        │ 4           
+rdcatalog_ws      │ 20       │ WARNING │ 74       │ 1           
+
+086debd6b848:~/xyna_001/server$ x help listworkspaces
+usage: listworkspaces [-t]
+List all registered workspaces.
+   -t,--asTable          Lists the output in the form of a well formatted table
+086debd6b848:~/xyna_001/server$

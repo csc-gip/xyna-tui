@@ -1,0 +1,565 @@
+086debd6b848:~/xyna_001/server$ x help
+Xyna Factory help. For help on a single command, use 'help <command>'.
+Use 'help -s' for a list of undisclosed commands
+
+All commands can be preceded by '-p <port>' to address a specified CLI port, e.g. './xynafactory.sh -p 12345 start'.
+
+[-d [port]] start: Starts the Xyna Factory Server. The factory can be started in debug mode using the -d flag. If no debug port is specified, the default port 4000 is used.
+stop: Stops the Xyna Factory Server.
+[-d [port]]restart : Restarts the Xyna Factory Server.
+
+        ### removexmomobject -fqName <arg> -workspaceName <arg>: Removes the registered XMOM object with specified fqName in the given workspace. In particular, a potentially existing deployed state is removed.
+        ### savexmomobject [-d] -fqName <arg> -workspaceName <arg>: Saves the XMOM object with xml at the specified path. If the object is new, it will be registered. If the deploy flag is set, it will then be deployed.
+
+---- Application ----
+        ### addobjecttoapplication -applicationName <arg> -objectName <arg> [-parentWorkspace <arg>]
+       [-type <arg>] [-v]: Adds an object from the workingset and all its dependencies to an application.
+        ### buildapplicationversion -applicationName <arg> [-comment <arg>] [-excludeSubtypesOf <args>]
+       [-parentWorkspace <arg>] [-s] [-v] -versionName <arg>: Build a new version of an application and copy all objects from the workingset to a new revision.
+        ### buildapplicationxml -applicationName <arg> [-cs] [-fileName <arg>] [-m] [-versionName <arg>]
+       [-workspaceName <arg>]: Build application.xml for a given application definition (workspace must be set) or runtime application (workspace must not be set).
+        ### buildworkingsetfromapplication -applicationName <arg> [-comment <arg>] [-v] -versionName
+       <arg>: Copy all objects from an application to the workingset.
+        ### clearworkingset [-f] [-removeSubtypesOf <args>]: Clears the working set.
+        ### clearworkspace [-f] [-removeSubtypesOf <args>] -workspaceName <arg>: Clears a workspace.
+        ### copyapplicationintoworkspace -applicationName <arg> [-comment <arg>] [-v] -versionName <arg>
+       [-workspaceName <arg>]: Copy all objects from an application to the workspace.
+        ### copycronlikeorders -applicationName <arg> [-g] [-id <arg>] [-m] [-ordertype <args>]
+       -sourceVersion <arg> -targetVersion <arg> [-v]: Copies all (or some) Cron Like Orders from one application version to another.
+        ### copyordertypes -applicationName <arg> -sourceVersion <arg> -targetVersion <arg>: Copies ordertypes and their configuration from one application version to another, if they do not yet exist in the target version.
+        ### defineapplication -applicationName <arg> [-comment <arg>] [-parentWorkspace <arg>]: Define a new application.
+        ### disablecustomorderentry -applicationName <arg> -definingApplicationName <arg>
+       -definingApplicationVersion <arg> -orderEntryName <arg> -versionName <arg>: Disable a custom order entry type.
+        ### enablecustomorderentry -applicationName <arg> -definingApplicationName <arg>
+       -definingApplicationVersion <arg> -orderEntryName <arg> -versionName <arg>: Enable a custom order entry type.
+        ### exportapplication -applicationName <arg> [-cs] -filename <arg> [-l] [-lb] [-newVersion <arg>]
+       [-v] -versionName <arg>: Export a version of an application.
+        ### importapplication [-f] -filename <arg> [-g] [-ic] [-ick] [-ip] [-iq] [-ncg] [-oc] [-op] [-r]
+       [-revision <arg>] [-s] [-storableNameGeneration <arg>] [-v] [-xc] [-xp]: Import an application from file.
+        ### listapplicationdetails [-applicationName <arg>] [-excludeEntryTypes <args>]
+       [-excludeSubtypesOf <args>] [-fileName <arg>] [-parentWorkspace <arg>] [-r] [-v]
+       [-versionName <arg>] [-vo]: List all objects, which are linked to an application.
+        ### listapplications [-applicationName <arg>] [-h] [-t] [-v] [-workspaceName <arg>]: List all registered applications and versions and their state.
+        ### listcustomorderentries: Lists registered custom order entries.
+        ### removeapplication -applicationName <arg> [-c] [-f] [-ff] [-g] [-parentWorkspace <arg>] [-v]
+       [-versionName <arg>]: Remove an application. The application has to be in state STOPPED or AUDIT_MODE
+        ### removeobjectfromapplication -applicationName <arg> [-d] [-f] -objectName <arg>
+       [-parentWorkspace <arg>] [-type <arg>] [-v]: Removes an object and optionally all dependencies from an application.
+        ### startapplication -applicationName <arg> [-c] [-enableOrderEntrance <args>] [-f] [-g]
+       -versionName <arg>: Start an application and enable all triggers and filters instances.
+        ### stopapplication -applicationName <arg> [-disableOrderEntrance <args>] [-g] -versionName <arg>: Stop an application and disable all triggers and filters instances.
+
+---- Backup and Restore ----
+        ### backup [-i] -targetFile <arg> [-v]: Creates a file containing workflows, triggers, filters, properties, capacities, monitoring levels, users, roles, rights and cronLS jobs.
+        ### createpackage -DeliveryItem <arg> [-i] -TargetFile <arg> [-v]: Creates a package containing all elements specified within the package definition file and the elements' dependencies.
+        ### installpackage [-f] [-noupdate] -sourceZipFile <arg> [-v]: Install a previously created package from a zip file.
+        ### restore [-f] -sourceZipFile <arg> [-v]: Restore workflows, triggers, filters, properties, capacities, monitoring levels, users, roles, rights and cronLS jobs from a file created with backup.
+        ### uninstallpackage -packageDefinitionFile <arg> [-v]: Uninstalls a package specified within the package definition file and all its dependencies.
+
+---- Capacities ----
+        ### addadminveto -documentation <arg> -name <arg>: Allocate an administative veto.
+        ### addcapacity -cardinality <arg> -name <arg> [-state <arg>]: Define a new capacity.
+        ### changecapacitycardinality -name <arg> -newCardinality <arg>: Change the cardinality of an existing capacity.
+        ### changecapacityname -name <arg> -newName <arg>: Change the cardinality of an existing capacity.
+        ### changecapacitystate -name <arg> -state <arg>: Change the state of an existing capacity.
+        ### listcapacities [-v]: Lists all defined capacities and their status.
+        ### listcapacitiesforordertype [-applicationName <arg>] -orderType <arg> [-versionName <arg>]
+       [-workspaceName <arg>]: Lists the capacities that are currently required by the given order type.
+        ### listcapacitydependencies: Lists all defined capacities and the order types that depend on them.
+        ### listvetos: Lists all vetos currently occupied by any orders.
+        ### removeadminveto -name <arg>: Remove an administative veto.
+        ### removecapacity -name <arg>: Remove an existing capacity.
+        ### removecapacityforordertype [-applicationName <arg>] -capacityName <arg> -orderType <arg> [-u]
+       [-versionName <arg>] [-workspaceName <arg>]: Stop requiring the specified capacity for the given order type.
+        ### removecapacityforwf -capacityName <arg> -workflowName <arg>: Stop requiring the specified capacity for the given workflow. Deprecated. Use removecapacityforordertype instead.
+        ### requirecapacityforordertype [-applicationName <arg>] -capacityName <arg> -cardinality <arg>
+       -orderType <arg> [-u] [-versionName <arg>] [-workspaceName <arg>]: Require the specified capacity for the given order type.
+        ### requirecapacityforwf -capacityName <arg> -cardinality <arg> -workflowName <arg>: Require the specified capacity for the given workflow.
+
+---- Cluster Management ----
+        ### configurecomponentforcluster -clusterInstanceId <arg> -component <arg>: Configures a component to be used in a cluster.
+        ### joincluster -clusterType <arg> -connectionParameters <args> -instanceDescription <arg>: Connect to an existing cluster.
+        ### leavecluster -id <arg>: Leave a cluster that the local node is currently part of.
+        ### listclusterablecomponents: Shows components which may be configured for use in cluster.
+        ### listclusterinstances [-v]: Show all clusters that the local node is currently part of.
+        ### listclustertypes: Shows information for all available cluster types.
+        ### registerclusterprovider -name <arg>: Registers an additional cluster provider.
+        ### setupnewcluster -clusterType <arg> -initParameters <args> -instanceDescription <arg>: Setup a new cluster.
+
+---- Code Access Management ----
+        ### assigncodeaccessinstance -codeAccessName <arg> -repositoryAccessInstance <arg>
+       [-workspaceName <arg>]: Creates either a new code access instance or reassigns an existing one to a different repositoryAccessInstance
+        ### listcodeaccessinstances: Lists information about all code access instances.
+        ### rebuildfailedcomponent [-componentname <arg>] [-d] [-workspaceName <arg>]: Instructs the code access to retry a previously failed build.
+        ### showcodeaccessstatus [-r] [-v] [-workspaceName <arg>]: Show the current status of a code access instance.
+
+---- Connection Pool Management ----
+        ### addconnectionpool -connectstring <arg> -name <arg> -password <arg> [-pooltypespecifics
+       <args>] [-retries <arg>] -size <arg> -type <arg> -user <arg>: Add a new connection pools.
+        ### listconnectionpoolinfo [-v] [-vv]: Shows statistics about connection pools.
+        ### listconnectionpools [-t]: Shows statistics about connection pools.
+        ### listconnectionpoolstatistics [-name <arg>] [-s] [-t]: Shows statistics about connection pools.
+        ### listconnectionpooltypes: Lists all known connection pool types.
+        ### modifyconnectionpool [-connectstring <arg>] [-f] -name <arg> [-password <arg>]
+       [-pooltypespecifics <args>] [-retries <arg>] [-size <arg>] -type <arg> [-user <arg>]: Modify a connection pool.
+        ### removeconnectionpool [-n] -name <arg>: Removes a connection pool.
+        ### shutdownconnectionpool [-n] -name <arg>: Shutdown a connection pool.
+        ### startconnectionpool -name <arg>: Restart a previously shutdown connection pool.
+
+---- Cron LS ----
+        ### disablecrons [-applicationName <arg>] [-orderType <args>] [-versionName <arg>]
+       [-workspaceName <arg>]: Disables all (or some) Cron Like Orders.
+        ### enablecrons [-applicationName <arg>] [-orderType <args>] [-versionName <arg>] [-workspaceName
+       <arg>]: Enables all (or some) Cron Like Orders in one application version.
+        ### listTimeZones [-v] [-w]: Lists time zones for use with cron like orders.
+        ### listcron [-o] [-t]: List all registered cron like orders.
+        ### modifycron [-custom0 <arg>] [-custom1 <arg>] [-custom2 <arg>] [-custom3 <arg>] [-dst <arg>]
+       [-enabled <arg>] [-firstExecutionTime <arg>] -id <arg> [-interval <arg>] [-label <arg>]
+       [-onError <arg>] [-orderType <arg>] [-timeZone <arg>]: Modify an existing Cron Like Order.
+        ### removecron -id <arg>: Stop and remove a Cron Like Order.
+        ### startcron [-applicationName <arg>] [-custom0 <arg>] [-custom1 <arg>] [-custom2 <arg>]
+       [-custom3 <arg>] [-d] [-dst] -firstExecutionTime <arg> [-inputPayloadFile <arg>] -interval
+       <arg> [-label <arg>] [-onError <arg>] -orderType <arg> [-r] [-timeZone <arg>] [-versionName
+       <arg>] [-workspaceName <arg>]: Register and start a new Cron Like Order.
+
+---- Data Model Management ----
+        ### configuredatamodeltype -datamodeltype <arg> -parameter <args>: Configures a data model type implementation.
+        ### deregisterdatamodeltype -name <arg>: Deregisters an additional data model type implementation.
+        ### exportdatamodels [-datamodelfqname <args>] -filename <arg>: Exports data models.
+        ### importdatamodel -datamodeltype <arg> [-files <args>] [-importParameters <args>]: Imports a new data model.
+        ### importdatamodelarchive -filename <arg> [-o]: Imports previously exported data models.
+        ### listdatamodels [-datamodeltype <arg>] [-v]: Lists registered data models.
+        ### listdatamodeltypes [-lang <arg>]: Lists registered data model type implementations.
+        ### modifydatamodel -datamodelname <arg> -datamodeltype <arg> -datamodelversion <arg>
+       [-parameters <args>]: Modifies an existing data model.
+        ### registerdatamodeltype -fqClassName <arg> -name <arg>: Registers an additional data model type implementation.
+        ### removedatamodel -datamodelname <arg> -datamodeltype <arg> -datamodelversion <arg>
+       [-parameters <args>]: Removes a data model.
+
+---- Deployment ----
+        ### addfilter -filterName <arg> -fqClassName <arg> -jarFiles <args> -sharedLibs <arg>
+       -triggerName <arg> [-v] [-workspaceName <arg>]: Register a filter. The filter uses all shared libraries of its associated trigger.
+        ### addtrigger -fqClassName <arg> -jarFiles <args> -sharedLibs <arg> -triggerName <arg> [-v]
+       [-workspaceName <arg>]: Register a trigger.
+        ### deploy [-applicationName <arg>] -fqWorkflowName <arg> [-protectionMode <arg>] [-versionName
+       <arg>] [-workspaceName <arg>] [-xmlFile <arg>]: Deploy a saved workflow with an optional workflow protection mode.
+        ### deploydatatype [-applicationName <arg>] -fqDatatypeName <arg> [-libraries <arg>]
+       [-protectionMode <arg>] [-registerWithXMOM <arg>] [-versionName <arg>] [-workspaceName <arg>]
+       [-xmlFile <arg>]: Deploy a saved datatype.
+        ### deployexception [-applicationName <arg>] -fqExceptionName <arg> [-protectionMode <arg>]
+       [-versionName <arg>] [-workspaceName <arg>] [-xmlFile <arg>]: Deploy a saved exception.
+        ### deployfilter [-applicationName <arg>] [-configurationParameter <args>] [-documentation <arg>]
+       -filterInstanceName <arg> -filterName <arg> [-o] -triggerInstanceName <arg> [-v]
+       [-versionName <arg>] [-workspaceName <arg>]: Instantiate the filter with the given name and attach to specified trigger.
+        ### deploymultiple [-applicationName <arg>] [-fqDatatypeNames <args>] [-fqExceptionNames <args>]
+       [-fqWorkflowNames <args>] [-protectionMode <arg>] [-versionName <arg>] [-workspaceName <arg>]: Deploy multiple objects.
+        ### deploysharedlib [-applicationName <arg>] -sharedLibName <arg> [-versionName <arg>]
+       [-workspaceName <arg>]: Deploy a saved sharedLib.
+        ### deploytrigger [-applicationName <arg>] [-startParameters <args>] -triggerInstanceName <arg>
+       -triggerName <arg> [-v] [-versionName <arg>] [-workspaceName <arg>]: Instantiate the trigger with the specified name.
+        ### disablefilterinstance [-applicationName <arg>] -filterinstancename <arg> [-v] [-versionName
+       <arg>] [-workspaceName <arg>]: Disable the filter instantiated with the specified name.
+        ### disabletriggerinstance [-applicationName <arg>] [-d] -triggerinstancename <arg> [-v]
+       [-versionName <arg>] [-workspaceName <arg>]: Disable the trigger instantiated with the specified name.
+        ### enablefilterinstance [-applicationName <arg>] -filterinstancename <arg> [-v] [-versionName
+       <arg>] [-workspaceName <arg>]: Re-enable a previously disabled filter instance.
+        ### enabletriggerinstance [-applicationName <arg>] [-d] [-orderentrancelimit <arg>]
+       -triggerinstancename <arg> [-v] [-versionName <arg>] [-workspaceName <arg>]: reenable a previous disabled trigger instance.
+        ### forceundeploydatatype -fqDatatypeName <arg> [-i]: Undeploy a datatype and all datatypes and workflows that depend on it, the optional --ignore disables checks for running workflows.
+        ### refreshworkspace [-applicationName <arg>] [-d] [-f] [-protectionMode <arg>] [-workspace
+       <arg>]: Refresh all XMOM objects in a workspace, can be restricted to a given application definition.
+        ### removefilter -filterName <arg> [-v] [-workspaceName <arg>]: Unregister a filter.
+        ### removetrigger -triggerName <arg> [-workspaceName <arg>]: Unregister a trigger.
+        ### showdeploymentitemdetails [-applicationName <arg>] -objectName <arg> [-v] [-versionName
+       <arg>] [-workspaceName <arg>]: Show the detailed status of a deployment item.
+        ### undeploy [-applicationName <arg>] -fqWorkflowName <arg> [-i] [-versionName <arg>]
+       [-workspaceName <arg>]: Undeploy a workflow. The optional --ignore disables checks for running workflows.
+        ### undeploydatatype [-applicationName <arg>] -fqDatatypeName <arg> [-i] [-versionName <arg>]
+       [-workspaceName <arg>]: Undeploy a datatype. The optional --ignore disables checks for running workflows.
+        ### undeployexception [-applicationName <arg>] -fqExceptionName <arg> [-i] [-versionName <arg>]
+       [-workspaceName <arg>]: Undeploy a deployed exception. The optional --ignore disables checks for running workflows.
+        ### undeployfilter [-applicationName <arg>] -filterInstanceName <arg> [-v] [-versionName <arg>]
+       [-workspaceName <arg>]: Remove a filter instance from its associated trigger instance.
+        ### undeploytrigger [-applicationName <arg>] -triggerInstanceName <arg> -triggerName <arg> [-v]
+       [-versionName <arg>] [-workspaceName <arg>]: Disable and stop a trigger instance, thereby undeploying eventually associated filter instances.
+
+---- Deprecated ----
+        ### listwfinstancedetails -id <arg> [-v] [-vv]: show detailed information on workflow instance. Deprecated: See 'showorderdetails'.
+        ### listworkflowinstances [-count <arg>] [-n] [-offset <arg>]: List orders that are present within the order archive. Deprecated: See 'listorders'.
+
+---- Dispatcher Management ----
+        ### listdestinations [-applicationName <arg>] -dispatcherName <arg> [-versionName <arg>]
+       [-workspaceName <arg>]: Lists all known destinations for the specified dispatcher.
+        ### removedestination [-applicationName <arg>] -destinationKey <arg> -dispatcherName <arg>
+       [-versionName <arg>] [-workspaceName <arg>]: Removes a destination from the specified dispatcher.
+        ### setdestination [-applicationName <arg>] -destinationKey <arg> -destinationValue <arg>
+       -dispatcherName <arg> [-versionName <arg>] [-workspaceName <arg>]: Sets a new destination on the specified dispatcher.
+
+---- Exception Code Management ----
+        ### addcodegroup -name <arg>: Add a new code group.
+        ### addcodepattern -codeGroupName <arg> -endIndex <arg> -padding <arg> -pattern <arg> -startIndex
+       <arg>: Add a new code pattern.
+        ### listcodegroups: Lists all registered code groups.
+        ### removecodegroup -name <arg>: Remove a code group.
+        ### removecodepattern -codeGroupName <arg> -index <arg>: Remove a code pattern.
+
+---- Git Object Management ----
+        ### addfactoryxmlignoreentry -type <arg> -value <arg>: add an ignore entry to the current factory configuration
+        ### comparefactoryxml: compare factory.xml file with the current configuration
+        ### createfactoryxml [-p] [-s]: create factory.xml from current factory configuration
+        ### listfactoryxmlentrytypes: list all supported entries types for the current factory configuration
+        ### listfactoryxmlignoreentries: list all ignore entries from the current factory configuration
+        ### removefactoryxmlignoreentry -type <arg> -value <arg>: remove an ignore entry from the current factory configuration
+        ### resolvefactoryxml [-a] [-c] [-entry <arg>] -id <arg> [-resolution <arg>]: resolve part of, or an entire factory difference list.
+        ### validatefactoryxmlignoreentries [-r]: validate ignore entries from the current factory configuration
+
+---- Git Reference Management ----
+        ### addReference -objectName <arg> -objectType <arg> -path <arg> -refType <arg> -workspaceName
+       <arg>: Add a reference for build support for a dependent library to an object. Triggers, filters and some datatypes require libraries to function. By providing references to these libraries, they can be set up correctly. References, in this context, are managed by the GitIntegration application.
+        ### listReferences [-workspaceName <arg>]: list all configured references
+        ### removeReference -objectName <arg> -path <arg> -workspaceName <arg>: Remove a reference for build support
+
+---- Git Repository Management ----
+        ### addcliusertorepository [-keyPassphrase <arg>] -mail <arg> [-password <arg>] [-privateKeyFile
+       <arg>] -repository <arg> -username <arg>: Configures a cli user for a repository
+        ### addlocalworkspacetorepository [-e] -path <arg> [-split <arg>] -subPath <arg> -workspace <arg>: Add a local workspace to a repository
+        ### addrepositoryconnection [-f] -path <arg> [-s] [-workspace <arg>]: Adds a repository connection
+        ### checkout -branchName <arg> -repository <arg>: Checkout branches of a repository
+        ### listbranches -repository <arg>: Lists all branches of the repository
+        ### listcommits -branch <arg> -length <arg> -repository <arg>: Lists commits of a given branch in a repository
+        ### listrepositories: Lists all repositorys
+        ### listrepositoryconnections: Lists all repository connections
+        ### listrepositoryusers [-repository <arg>]: Lists all configured repository users
+        ### pull [-d] -repository <arg>: pull from a repository
+        ### push [-d] [-filePatterns <args>] -message <arg> -repository <arg>: commit and push to a repository
+        ### removerepositoryconnection [-d] [-f] -workspace <arg>: Removes a repository connection
+        ### removerepositoryuser -repository <arg> -user <arg>: Removes a user from a repository
+
+---- Git Workspace Management ----
+        ### compareworkspacexml -workspaceName <arg>: compare a workspace.xml file with the current configuration
+        ### createworkspacexml [-f] [-p] [-split <arg>] -workspaceName <arg>: create workspace.xml for a given workspace
+        ### listworkspacegitdiffs [-id <arg>]: print all open workspace differences lists, or details for a specific list
+        ### resolveworkspacexml [-a] [-c] [-entry <arg>] -id <arg> [-resolution <arg>]: resolve part of, or an entire workspace difference list.
+
+---- Key Management ----
+        ### importkeystore -file <arg> [-importParameters <args>] -keystoretype <arg> -name <arg>: Imports a key store.
+        ### listkeystores: Lists key stores.
+        ### listkeystoretypes [-lang <arg>]: Lists registered key store type implementations.
+        ### removekeystore -name <arg>: Removes a key store.
+
+---- Manual Interaction ----
+        ### listmanualinteractions [-v]: Lists all pending manual interactions.
+        ### processmanualinteraction -id <arg> -response <arg>: Process a pending manual interaction.
+        ### showwftrace -id <arg>: Show the order trace of a waiting manual interaction, i.e. list all known parent orders.
+
+---- Misc ----
+        ### addschedulertimewindow [-comment <arg>] -definition <args> -name <arg>: Define a new scheduling time window for scheduling.
+        ### benchmark [-maxParallel <arg>] -numberOfCalls <arg> -numberOfRuns <arg> -orderType <arg>: Inserts a given number of orders and calculates the resulting performance in Hz.
+        ### callservice [-applicationName <arg>] -pathToParameterFile <arg> [-versionName <arg>]: Directly call a service (encapsulated by a trivial workflow).
+        ### cancelbatchprocess [-cancelMode <arg>] -orderId <arg>: Cancel the batch process with the provided orderId.
+        ### cancelorder -orderId <arg> [-timeout <arg>]: Cancel the order with the provided ID.
+        ### changeschedulertimewindow [-comment <arg>] -definition <args> -name <arg>: Change a scheduling time window for scheduling.
+        ### changeschedulingparameter -orderId <arg> [-timeconstraint <arg>]: Change the scheduling parameters of an order already in the scheduler.
+        ### checkauthentication -domain <arg> -password <arg> -user <arg>: Tries to authenticate a user in the specified domain (if several servers are specified for the domain, each one will be tried).
+        ### cleanupxmomrepository -ageInDays <arg> [-F]: Removes old entries from xmomrepository (used to view old order audits)
+        ### configureordercontextmapping [-applicationName <arg>] -enable <arg> -orderType <arg>
+       [-versionName <arg>] [-workspaceName <arg>]: Configures this order type to be enabled to use the internal order context.
+        ### configuretriggermaxevents [-a] [-applicationName <arg>] -maxEvents <arg> -triggerInstanceName
+       <arg> [-versionName <arg>] [-workspaceName <arg>]: Set maximum number of events processed concurrently by one trigger instance.
+        ### continuebatchprocess [-f] -orderId <arg>: Continues a paused batch process.
+        ### discoverabandonedorders [-d]: Searches for orders or parts of orders that are potentially broken.
+        ### encrypt -key <arg> [-method <arg>] -value <arg>: Encrypts a value using a given key used in secure storage table and prints the encrypted value using the representation method (hex or base64).
+        ### forcecleanabandonedorder [-a] [-entryID <arg>] [-f] [-r]: Removes all evidence for the abandoned order.
+        ### forceexit: Forces a system exit on the XynaFactory.
+        ### importlocalization -filename <arg> [-o]: Import an a file with localization data.
+        ### killprocess [-f] [-i] -orderId <arg>: Tries to abort a given order (and all orders belonging to its family) and especially frees the capacities that it uses. Cancels the order if it is waiting to be scheduled and frees its allocated capacities. Tries to interrupt the executing thread(s) if the order is already running.
+        ### listabandonedorders [-v]: Lists all detected abandoned orders.
+        ### listconfigtriggermaxevents: Show configurations set by command 'configuretriggermaxevents'.
+        ### listordercontextmappings: Lists all order types for which a mapping to the corresponding order context object is created.
+        ### listpriorities: Shows all configured priorities.
+        ### migratebatchprocess -applicationName <arg> -orderId <arg> -versionName <arg>: Migrates the batch process to another application-version.
+        ### pausebatchprocess -orderId <arg>: Pause the batch process with the provided orderId.
+        ### pausescheduler: Pauses the scheduler. New orders can be placed but will not be executed. Running orders are allowed to finish normally.
+        ### printdependencies [-applicationName <arg>] -object <arg> -objectType <arg> [-r] [-versionName
+       <arg>] [-workspaceName <arg>]: Prints the dependencies of the specified object
+        ### printusedobjects [-applicationName <arg>] -object <arg> -objectType <arg> [-r] [-versionName
+       <arg>] [-workspaceName <arg>]: Prints the used objects of the specified object
+        ### refreshbatchprocess -orderId <arg>: Refresh the slave scheduling data of the batch process with the provided orderId.
+        ### refreshconnectionpool -connectionPoolName <arg> [-f]: Closes and then recreates all connections in the specified connectionpool.
+        ### removepriority [-applicationName <arg>] -orderType <arg> [-versionName <arg>] [-workspaceName
+       <arg>]: Removes the priority setting for an orderType.
+        ### removeschedulertimewindow [-f] -name <arg>: Remove a scheduling time window.
+        ### rescheduleseriesorder [-f] -orderId <arg>: Tries to schedule a waiting series order (force: regardless of predecessors) again.
+        ### resolveabandonedorder [-a] [-entryID <arg>]: Tries to resolve the issue of an abandoned order and start it to finish its execution.
+        ### resumescheduler: Resumes normal operation of the scheduler.
+        ### securestore -key <arg> -keytype <arg> -value <arg>: Stores a key value pair in the secure storage.
+        ### setpriority [-applicationName <arg>] -orderType <arg> -priority <arg> [-versionName <arg>]
+       [-workspaceName <arg>]: Set a priority for an orderType.
+        ### startcronlikeschedulerthread: Starts a new scheduler thread for cron like orders if the scheduler has stopped due to a severe exception.
+        ### startorder [-a] [-applicationName <arg>] [-inputPayloadFile <arg>] -orderType <arg> [-p]
+       [-priority <arg>] [-role <arg>] [-s] [-timeconstraint <arg>] [-timeout <arg>] [-versionName
+       <arg>] [-workspaceName <arg>]: Start an order without input parameters asynchronously (fire and forget).
+        ### startschedulerthread [-c] [-r]: Starts a new scheduler thread if the scheduler has stopped due to a severe exception.
+
+---- Monitoring ----
+        ### disableserviceprofiling [-application <arg>] [-ordertype <arg>] [-workspace <arg>]: Disable service profiling for the specified entity, if no entity is specified profiling will be disabled for all available entities
+        ### enableserviceprofiling [-application <arg>] [-ordertype <arg>] [-workspace <arg>]: Enables service profiling for the specified entity, if no entity is specified all available entities will be profiled
+        ### getmonitoringlevel [-applicationName <arg>] [-orderType <arg>] [-versionName <arg>]
+       [-workspaceName <arg>]: Gets the currently configured monitoring level.
+        ### listactiveorders [-applicationName <arg>] [-g] [-versionName <arg>] [-vf] [-vo] [-vt]
+       [-workspaceName <arg>]: List all active orders, which are linked to a workspace or an application.
+        ### listcallstats [-v]: Lists all available call and error statistics.
+        ### listdoms [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]: List all deployed datatypes.
+        ### listexceptions [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]: List all deployed exceptions.
+        ### listfilters [-c] [-e] [-i] [-o] [-r] [-v]: Lists all filters, their deployment status and the trigger they are deployed on.
+        ### listlogger [-v]: Lists all currently configured loggers.
+        ### listorders [-count <arg>] [-offset <arg>]: List the last updated orders. Use 'showorderdetails' to find out more about a specific order.
+        ### listorderseriesinfo [-v] [-vv]: Shows detailed information about the state of the Xyna Order Series Management.
+        ### listordertypescapacitystatus: Lists all order types and the correspondending capacity status.
+        ### listoutdatedfilterinstances: List all filterinstances in applications with their outdated versions.
+        ### listschedulerinfo [-h] [-v] [-vv]: Shows detailed information about the state of the Xyna Scheduler.
+        ### listsharedlibs [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]: List all sharedLibs.
+        ### liststatistics [-c] [-path <arg>] [-v] [-vv]: Lists all available statistics.
+        ### listsuspendedorders: List all suspended orders.
+        ### listsysteminfo [-r]: Returns information on the system.
+        ### listthreadpoolinfo: List information on the current and previous thread pool exhaustion.
+        ### listtriggers [-e] [-i] [-o] [-r] [-s] [-v]: Lists all triggers and triggerinstances, their deployment status and start parameters.
+        ### listwfs [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]: Lists all workflows and the corresponding deployment status.
+        ### loadlogproperties [-filename <arg>]: Load the log properties from file.
+        ### removemonitoringlevel [-applicationName <arg>] -orderType <arg> [-versionName <arg>]
+       [-workspaceName <arg>]: Removes a previously configured monitoring level.
+        ### setdefmonlvl -monitoringLevel <arg>: Set the default monitoring level.
+        ### setloglevel -level <arg> -logger <arg>: Set the log level for a logger.
+        ### setmonlvl [-applicationName <arg>] -code <arg> -orderType <arg> [-versionName <arg>]
+       [-workspaceName <arg>]: Sets the monitoring code for one ordertype, thereby overwriting the default value.
+        ### showorderdetails -id <arg> [-v]: Show detailed information on a specific order.
+        ### sql [-ConnectionType <arg>] -Statement <arg> [-t]: Evaluate SELECT/DESCRIBE statements on warehouse tables.
+        ### status [-v]: Returns the current factory status.
+        ### uptime: Returns how long the server has been running.
+        ### version: Shows the Xyna Factory Server and XMOM versions.
+
+---- NetworkConfiguration ----
+        ### defineip [-documentation <arg>] [-f] -ip <arg> -name <arg>: Define an IP Address.
+        ### listips [-v]: Lists all defined IP Addresses.
+        ### removeip -name <arg>: Remove the definition of an IP address.
+
+---- Node Management ----
+        ### addfactorynode [-comment <arg>] -instanceId <arg> -linkchannelparameter <args>
+       -linkchanneltype <arg> -linkprofiles <args> -name <arg>: Add a new factory node.
+        ### createremotedestinationinstance [-executiontimeout <arg>] [-instancedescription <arg>]
+       -instancename <arg> [-parameters <args>] -remotedestinationtype <arg>: Creates a new remote destination instance.
+        ### definefactorynodecluster [-comment <arg>] -factorynodes <args> -name <arg>: Define a new cluster of factory nodes.
+        ### listfactorynodecluster [-v]: List informations about all factory node cluster.
+        ### listfactorynodes [-v]: List informations about all factory nodes.
+        ### listremotedestinationinstances: List informations about all remote destination instances.
+        ### listremotedestinationtypes [-lang <arg>]: List informations about all remote destination types.
+        ### removefactorynode -name <arg>: Remove a factory node
+        ### removefactorynodecluster -name <arg>: Remove a factory node cluster
+
+---- Open API Management ----
+        ### buildoasapplication -applicationName <arg> [-c] [-p] -path <arg>: Create Applications based on open api specifications
+
+---- Order Input Source Management ----
+        ### deregisterorderinputsourcetype -name <arg>: Deregisters an additional order input source type implementation.
+        ### listorderinputsources [-applicationName <arg>] [-v] [-versionName <arg>] [-workspaceName
+       <arg>]: Lists order input sources.
+        ### listorderinputsourcetypes [-lang <arg>]: Lists registered order input source type implementations.
+        ### registerorderinputsourcetype -fqClassName <arg> -name <arg>: Registers an additional order input source type implementation.
+
+---- Parameter Inheritance Management ----
+        ### addinheritancerule [-applicationName <arg>] [-childFilter <arg>] -orderType <arg>
+       -parameterType <arg> [-precedence <arg>] -value <arg> [-versionName <arg>] [-workspaceName
+       <arg>]: Adds a parameter inheritance rule to an ordertype.
+        ### listinheritancerules [-applicationName <arg>] [-orderType <arg>] -parameterType <arg>
+       [-versionName <arg>] [-workspaceName <arg>]: Lists parameter inheritance rules of an ordertype.
+        ### removeinheritancerule [-applicationName <arg>] [-childFilter <arg>] -orderType <arg>
+       -parameterType <arg> [-versionName <arg>] [-workspaceName <arg>]: Removes a parameter inheritance rule from an ordertype.
+
+---- Persistence ----
+        ### addwarehousecopyjob [-c] [-constraints <arg>] -interval <arg> -sourceConnectionType <arg>
+       -tableName <arg> -targetConnectionType <arg>: Creates a job that periodically copies data from one persistence layer instance to the other.
+        ### addwarehousedeletejob [-c] -connectionType <args> [-constraints <arg>] -interval <arg>
+       -tableName <arg>: Creates a job that periodically deletes data from one or more persistence layer instance.
+        ### addwarehousereplacejob [-c] [-constraints <arg>] -interval <arg> -sourceConnectionType <arg>
+       -tableName <arg> -targetConnectionType <arg>: Creates a job that periodically replaces all data in one persistence layer with data from another.
+        ### applyindexchanges [-indexmodification <args>] [-plname <args>]: Apply index modifications that were previously discovered.
+        ### deploypersistencelayer -fqPersistenceLayerName <arg> [-persistenceLayerName <arg>]: Deploys a new persistencelayer. The required jar files are expected to be found in server/persistencelayers/<fqClassname>.
+        ### instantiatepersistencelayer -connectionType <arg> -department <arg> [-persistenceLayerID
+       <arg>] [-persistenceLayerInstanceName <arg>] [-persistenceLayerName <arg>]
+       [-persistenceLayerSpecifics <args>]: Instantiates a persistencelayer. if assigned to a table, all operations on that table automatically uses this persistence layer instance.
+        ### listindexcollisions: List collisions between programmatic defined and backing store indices.
+        ### listpersistencelayerinstances: Lists all registered persistencelayers and the parameters to be used for instantiating one.
+        ### listpersistencelayers: Lists all registered persistencelayers and the parameters to be used for instantiating one.
+        ### listtableconfig: Lists all tables which are assigned to a specific persistencelayer instance.
+        ### listwarehousejobs: Lists all warehouse jobs that are currently registered.
+        ### listxmomodsnames [-applicationName <arg>] [-c] [-fqDatatypeName <arg>] [-v] [-versionName
+       <arg>] [-workspaceName <arg>]: Show the mapping of XMOM Storables to corresponding ODS storables including extensions.
+        ### registertable [-c] [-persistenceLayerInstanceID <arg>] [-persistenceLayerInstanceName <arg>]
+       [-properties <arg>] -tableName <arg>: All operations on that table use the specified persistence layer instance.
+        ### reloadxml: Reloads xmls of xml persistence layers.
+        ### removepersistencelayerinstance [-persistenceLayerInstanceID <arg>]
+       [-persistenceLayerInstanceName <arg>]: Removes an existing persistence layer instance.
+        ### removewarehousejob -jobID <arg>: Removes a registered warehouse job.
+        ### setdefaultpersistencelayer -connectionType <arg> [-persistenceLayerInstanceID <arg>]
+       [-persistenceLayerInstanceName <arg>]: Marks a persistencelayerinstance as default for one connection type.
+        ### setxmomodsname [-applicationName <arg>] -fqDatatypeName <arg> [-fqPath <arg>] [-odsName
+       <arg>] [-path <arg>] [-versionName <arg>] [-workspaceName <arg>]: Redefine the ODS storable name corresponding to a XMOM storable or its extensions.
+        ### undeploypersistencelayer -fqPersistenceLayerName <arg>: Undeploys a persistencelayer.
+        ### unregistertable -connectionType <arg> [-d] -tableName <arg>: All operations on that table use the specified persistence layer instance.
+
+---- QueueManagement ----
+        ### deregisterqueue -uniqueueName <arg>: Deregister a queue.
+        ### listqueues [-o]: List all registered queues.
+        ### registerqueue -connectParameters <args> -externalName <arg> -queueType <arg> -uniqueName
+       <arg>: Register a queue.
+
+---- Refactoring ----
+        ### refactorxmomname [-c] [-label <arg>] [-password <arg>] [-s] -sourcefqname <arg> -targetfqname
+       <arg> [-targettype <arg>] [-username <arg>] [-workspaceName <arg>]: Renames a xmom object.
+
+---- Repository Access Management ----
+        ### instantiaterepositoryaccessinstance [-codeAccessName <arg>] -instancename <arg> -parameter
+       <args> -typename <arg> [-workspaceName <arg>] [-xmomAccessName <arg>]: Instantiates a previously registered repository access implementation.
+        ### listrepositoryaccessimpls: Lists information about all registered repository access implementations.
+        ### listrepositoryaccessinstances: Lists information about all repository access instances.
+        ### registerrepositoryaccess -fqClassName <arg> -name <arg>: Registers an additional repository access implementation.
+
+---- Runtime Context Dependency Management ----
+        ### addruntimecontextdependency [-f] [-ownerApplicationName <arg>] [-ownerVersionName <arg>]
+       [-ownerWorkspaceName <arg>] [-requirementApplicationName <arg>] [-requirementVersionName
+       <arg>] [-requirementWorkspaceName <arg>]: Defines a new runtime context dependency.
+        ### changeruntimecontextdependencies -changes <args> [-f] [-ownerApplicationName <arg>]
+       [-ownerVersionName <arg>] [-ownerWorkspaceName <arg>]: Changes runtime context dependencies.
+        ### listruntimecontextdependencies [-applicationName <arg>] [-t] [-versionName <arg>]
+       [-workspaceName <arg>]: List all requirements of the specified runtime context. If no runtime context is specified all runtime context dependencies will be listed
+        ### migrateruntimecontext [-f] [-fromApplicationName <arg>] [-fromVersionName <arg>]
+       [-fromWorkspaceName <arg>] [-migrationTargets <arg>] [-toApplicationName <arg>]
+       [-toVersionName <arg>] [-toWorkspaceName <arg>]: Migrates RuntimeContext 'from' to 'to': Each RuntimeContext requiring 'from' will require 'to' afterwards. Runtime-Objects (Orders, Cronlike Orders, etc) will be tried to migrate. Condition for successful migration of Runtime Objects: All used objects (XMOM, classes, etc) must be compatibly resolvable in the same Runtime Context as before, except substituting 'from' with 'to'.
+        ### printrevision [-applicationName <arg>] [-versionName <arg>] [-workspaceName <arg>]: Print revision of given runtime context.
+        ### removeruntimecontextdependency [-f] [-ownerApplicationName <arg>] [-ownerVersionName <arg>]
+       [-ownerWorkspaceName <arg>] [-requirementApplicationName <arg>] [-requirementVersionName
+       <arg>] [-requirementWorkspaceName <arg>]: Removes an existing runtime context dependency.
+
+---- SSH Connection Management ----
+        ### addkeyfiles [-passphrase <arg>] [-priority <arg>] -privatekeyfile <arg> -publickeyfile <arg>
+       [-typeclass <arg>]: Add the identity contained in the specified file.
+        ### addkeypair [-passphrase <arg>] [-priority <arg>] -privatekey <arg> -publickey <arg>
+       [-typeclass <arg>]: Adds the specified key pair to the own identities.
+        ### addknownhost [-comment <arg>] -hostname <arg> -publickey <arg>: Register a public key for a host.
+        ### exportknownhost [-encryptiontype <arg>] -filename <arg> [-hostname <arg>]: Exports host entries to a file.
+        ### generatekeypair -encryptiontype <arg> [-keysize <arg>] [-o] [-passphrase <arg>] [-priority
+       <arg>] [-typeclass <arg>]: Generate a new private-public key pair and add it as own identity.
+        ### getpublickey [-encryptiontype <arg>]: Returns the own public identities.
+        ### importknownhost -filename <arg>: Imports host entries from a file.
+        ### modifykeypair -identity <arg> [-new_identity <arg>] [-new_priority <arg>] [-new_typeclass
+       <arg>]: Changing the identity, priority, and type class of a key pair in the identity repository.
+        ### removeidentities [-encryptiontype <arg>] [-publickey <arg>]: Removes the specified identities.
+        ### removeknownhost [-encryptiontype <arg>] -hostname <arg> [-publickey <arg>]: Remove the entries for a registered host.
+
+---- Shared Resource Management ----
+        ### configuresharedresourcetype [-c] [-d] -resourceType <arg> [-synchronizerInstanceName <arg>]: Configures a shared resouce to the given shared resource synchronizer instance
+        ### deletesharedresourcesynchronizerinstance -instanceName <arg>: Deletes an existing shared resource synchronizer instance.
+        ### instantiatesharedresourcesynchronizer [-configuration <args>] -instanceName <arg>
+       [-startOption <arg>] -synchronizerType <arg>: Instantiates a shared resource synchronizer with the given type and configuration.
+        ### listsharedresourcesynchronizerinstances: Lists configured shared resource synchronizer instances with their description.
+        ### listsharedresourcesynchronizertypes: Lists available shared resource synchronizer types with their configuration parameters.
+        ### listsharedresourcetypes: Lists all known shared resources with their configured synchronizer instance, if any.
+        ### startsharedresourcesynchronizerinstance -instanceName <arg>: Start a shared resource synchronizer instance.
+        ### stopsharedresourcesynchronizerinstance -instanceName <arg>: Stop a shared resource synchronizer instance.
+
+---- Support for Eclipse ----
+        ### buildfilterproject -filterName <arg> [-targetDirectory <arg>] -triggerName <arg>
+       [-workspaceName <arg>]: Create a filter template to import in Eclipse.
+        ### buildmdmjar [-applicationName <arg>] [-r] [-targetDirectory <arg>] [-versionName <arg>]
+       [-workspaceName <arg>]: Create jar file containing all MDM class files for development purposes.
+        ### buildmdmpy [-applicationName <arg>] [-targetDirectory <arg>] [-versionName <arg>]
+       [-workspaceName <arg>]: Create py file containing all MDM definitions for a given runtime context including dependencies.
+        ### buildservicedefinitionjar -fqDatatypeName <arg> [-targetDirectory <arg>] [-workspaceName
+       <arg>]: Create jar file containing the currently saved service contracts.
+        ### buildserviceprojectjava -fqDatatypeName <arg> -targetDirectory <arg> [-workspaceName <arg>]: Create a Java service template to import in Eclipse.
+        ### buildserviceprojectpython -fqDatatypeName <arg> -targetDirectory <arg> [-workspaceName <arg>]: Create a Python service template to import in Eclipse.
+        ### buildtriggerproject [-targetDirectory <arg>] -triggerName <arg> [-workspaceName <arg>]: Create a trigger template to import in Eclipse.
+        ### reloadsharedlib [-applicationName <arg>] -sharedLibName <arg> [-versionName <arg>]
+       [-workspaceName <arg>]: Refreshes loading of jarfiles in shared library. All triggers depending on this library will be restarted.
+        ### showlibs [-h]: List the libraries available for XMOM compiling.
+
+---- ThreadManagement ----
+        ### listinfrastructurethreads [-e] [-p] [-v]: List all registered infrastructure threads and their state.
+        ### startinfrastructurethread -name <arg> [-parameter <args>] [-r]: (Re)Starts a registered infrastructure thread.
+        ### stopinfrastructurethread -name <arg>: Stop a registered infrastructure thread.
+
+---- Time Controlled Order ----
+        ### listtimecontrolledorders [-o] [-t]: List all registered Time Controlled Orders.
+        ### modifytimecontrolledorder [-calendarDefinition <arg>] [-custom0 <arg>] [-custom1 <arg>]
+       [-custom2 <arg>] [-custom3 <arg>] [-dst <arg>] [-enabled <arg>] [-firstExecutionTime <arg>]
+       -id <arg> [-label <arg>] [-onError <arg>] [-orderType <arg>] [-timeZone <arg>]: Modify an existing Time Controlled Order.
+        ### starttimecontrolledorder [-applicationName <arg>] [-calendarDefinition <arg>] [-custom0
+       <arg>] [-custom1 <arg>] [-custom2 <arg>] [-custom3 <arg>] [-d] [-dst] -firstExecutionTime
+       <arg> [-inputPayloadFile <arg>] [-label <arg>] [-onError <arg>] -orderType <arg> [-r]
+       [-timeZone <arg>] [-versionName <arg>] [-workspaceName <arg>]: Register and start a new Time Controlled Order.
+
+---- Time Series ----
+        ### deletetimeseries -id <arg>: Deletes a time series.
+        ### listtimeseries: Lists existing time series
+
+---- User Management ----
+        ### changepassword [-hashed] -newPassword <arg> -oldPassword <arg> -userName <arg>: Change the password if the given old password is correct.
+        ### changerole -roleName <arg> -userName <arg>: Change the role of a user.
+        ### createdomain -connectionTimeout <arg> -domainName <arg> -domainType <arg> -maxRetries <arg>: Creates a new domain.
+        ### createright [-documentation <arg>] [-language <arg>] -rightName <arg>: Creates a new right, if its name satisfies the naming conventions.
+        ### creatermiproxy [-d] [-documentation <arg>] [-p] [-port <arg>] -proxyName <arg> [-registryHost
+       <arg>] [-registryPort <arg>] [-rights <args>] [-roles <args>]: Creates a new rmi proxy for given roles
+        ### creatermiproxyinterface [-d] [-p] -proxyName <arg> [-rights <args>] [-roles <args>] [-s]
+       [-targetDirectory <arg>]: Creates the rmi interface for the given proxyName or for given roles and rights
+        ### createrole -domainName <arg> -roleName <arg>: Create a role without any rights associated with the specified domain.
+        ### createuser [-domainName <args>] [-e] -password <arg> -roleName <arg> -userName <arg>: Create a new user.
+        ### deletedomain -domainName <arg>: Deletes an existing domain if it's not assigned to a role or an user.
+        ### deleteright -rightName <arg>: Deletes an existing right and revokes it from all roles.
+        ### deleterole -domainName <arg> -roleName <arg>: Deletes a role in the specified domain if it is not assigned to a user.
+        ### deleteuser -userName <arg>: Delete a user.
+        ### exportdomains -scriptName <arg>: Generates a shell script that will import all domains registered on this Xyna Factory.
+        ### exportrights -scriptName <arg>: Generates a shell script that will import all rights registered on this Xyna Factory.
+        ### exportroles [-i] -scriptName <arg>: Generates a shell script that will import all roles, domains and rights registered on this Xyna Factory.
+        ### exportusers -scriptName <arg>: Generates a shell script that will import all users, roles, domains and rights registered on this Xyna Factory.
+        ### globaloverwritedomain -domainName <args>: Set a list of domains that overwrite the local domain user settings.
+        ### grantright -rightName <arg> -roleName <arg>: Grant a right to an existing role.
+        ### importuser -passwordHash <arg> -roleName <arg> -userName <arg>: Imports a user. If the user is already present it's role and password will be updated.
+        ### listdomains: Lists all registered domains.
+        ### listrights: Lists all available rights.
+        ### listrmiproxies [-v]: List informations about all rmi proxies.
+        ### listroles [-roleName <arg>]: Lists all registered roles.
+        ### listusers: Lists all registered users.
+        ### removermiproxy -name <arg>: Remove an existing rmi proxy
+        ### resetpassword -newPassword <arg> -userName <arg>: Resets the password of a blocked user.
+        ### revokeright -rightName <arg> -roleName <arg>: Revoke a right from an existing role.
+        ### setalias -alias <arg> -domainName <arg> -roleName <arg>: Maps an external role to the specified internal one.
+        ### setdefaultdomains -domainName <args>: Set the default domains that new users will authorize on.
+        ### setdomains [-domainNames <args>] -userName <arg>: Set the domains the specified user should authorize on.
+        ### setdomaintypespecificdata -domainName <arg> -domainTypeSpecificData <args>: Assigns the type specific data to the specified domain.
+        ### setpassword -newPassword <arg> -userName <arg>: Sets the password of a user, hashing it in the process.
+        ### setpasswordhash -newPasswordHash <arg> -userName <arg>: Sets the password of a user to the specified hash.
+        ### setradiusdomaintypespecificdata -associatedOrdertype <arg> -domainName <arg> -servers <args>: Assigns the specified RadiusDomaintypeSpecificData to the specified domain.
+        ### setrightdocumentation -documentation <arg> [-language <arg>] -rightName <arg>: Sets documentation of a right.
+
+---- Workspace Management ----
+        ### createworkspace [-revision <arg>] -workspaceName <arg>: Create a new workspace and copy XMOM xmls and workspace dependent XynaProperties from default workspace.
+        ### listworkspacedetails -workspaceName <arg>: Show detailed information on a workspace.
+        ### listworkspaces [-t]: List all registered workspaces.
+        ### removeworkspace [-c] [-f] -workspaceName <arg>: Removes a workspace.
+
+---- XMOM Access Management ----
+        ### assignxmomaccessinstance [-d] [-ic] [-ip] -repositoryAccessInstance <arg> [-workspaceName
+       <arg>] -xmomAccessName <arg>: Creates a new xmom access instance
+        ### deployxmomaccesscomponent [-componentName <arg>] [-workspaceName <arg>]: Instructs the xmom access to deploy the objects
+        ### listxmomaccessinstances: Lists information about all xmom access instances.
+
+---- Xyna Properties ----
+        ### exportproperties -filename <arg> [-filter <arg>] [-format <arg>] [-inclDoc] [-inclUnchanged]: Exports Xyna Properties to a file.
+        ### get [-d] -key <arg> [-lang <arg>] [-p] [-v]: Print a property value.
+        ### importproperties -filename <arg> [-format <arg>] [-overwrite]: Imports Xyna Properties from a file.
+        ### listproperties [-lang <arg>] [-p] [-showdoc] [-v] [-vv]: Lists all XynaProperties and their readers.
+        ### removeproperty [-g] -key <arg>: Removes a property from the system.
+        ### set [-g] -key <arg> [-n] -value <arg>: Set a property value.
+        ### setpropertydocumentation -documentation <arg> -key <arg> [-language <arg>]: Sets documentation of a property.
+
+086debd6b848:~/xyna_001/server$

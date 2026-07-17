@@ -1,0 +1,59 @@
+086debd6b848:~/xyna_001/server$ x showdeploymentitemdetails -v -objectName csc.test.TestKeyInfo
+Type                : Workflow
+Name                : csc.test.TestKeyInfo
+RuntimeContext      : Workspace 'default workspace'
+State               : DEPLOYED
+
+Interfaces csc.test.TestKeyInfo publishes in SAVED state:
+  - [DATATYPE xact.ssh.KeyInfo[]] TestKeyInfo() 
+  - WORKFLOW csc.test.TestKeyInfo
+
+Interfaces csc.test.TestKeyInfo publishes in DEPLOYED state:
+  - [DATATYPE xact.ssh.KeyInfo[]] TestKeyInfo() 
+  - WORKFLOW csc.test.TestKeyInfo
+
+Interfaces csc.test.TestKeyInfo uses in SAVED state:
+  - (85) <xact.ssh.KeyPair.publicKey> must be compatible to type of <base.Text.text>
+  - InterfaceEmployment in DATATYPE xact.ssh.KeyInfoService:
+    [DATATYPE xact.ssh.KeyInfo] getKeyInfo(DATATYPE base.Text) throws ?
+  - DATATYPE xact.ssh.KeyPair
+  - InterfaceEmployment in DATATYPE xact.ssh.SSHConnectionManagement:
+    [DATATYPE xact.ssh.KeyPair[]] getPublicKey(DATATYPE xact.ssh.DSA) throws ?
+  - DATATYPE xact.ssh.KeyInfo
+  - DATATYPE xact.ssh.KeyPair
+  - DATATYPE base.Text
+  - DATATYPE xact.ssh.KeyInfo
+  - DATATYPE xact.ssh.DSA
+
+Interfaces csc.test.TestKeyInfo uses in DEPLOYED state:
+  - (85) <xact.ssh.KeyPair.publicKey> must be compatible to type of <base.Text.text>
+  - InterfaceEmployment in DATATYPE xact.ssh.KeyInfoService:
+    [DATATYPE xact.ssh.KeyInfo] getKeyInfo(DATATYPE base.Text) throws ?
+  - DATATYPE xact.ssh.KeyPair
+  - InterfaceEmployment in DATATYPE xact.ssh.SSHConnectionManagement:
+    [DATATYPE xact.ssh.KeyPair[]] getPublicKey(DATATYPE xact.ssh.DSA) throws ?
+  - DATATYPE xact.ssh.KeyInfo
+  - DATATYPE xact.ssh.KeyPair
+  - DATATYPE base.Text
+  - DATATYPE xact.ssh.DSA
+  - DATATYPE xact.ssh.KeyInfo
+
+Objects that use csc.test.TestKeyInfo in SAVED state:
+
+Objects that use csc.test.TestKeyInfo in DEPLOYED state:
+
+086debd6b848:~/xyna_001/server$ x showdeploymentitemdetails -objectName csc.test.TestKeyInfo
+Type                : Workflow
+Name                : csc.test.TestKeyInfo
+RuntimeContext      : Workspace 'default workspace'
+State               : DEPLOYED
+086debd6b848:~/xyna_001/server$ x help showdeploymentitemdetails 
+usage: showdeploymentitemdetails [-applicationName <arg>] -objectName <arg> [-v] [-versionName
+       <arg>] [-workspaceName <arg>]
+Show the detailed status of a deployment item.
+   -applicationName <arg>          The name of the application containing the object
+   -objectName <arg>               The fully qualified name of the object
+   -v,--verbose                    Prints more detailed information about the object
+   -versionName <arg>              The version name of the application containing the object
+   -workspaceName <arg>            The name of the workspace containing the object
+086debd6b848:~/xyna_001/server$

@@ -1,0 +1,400 @@
+086debd6b848:~/xyna_001/server$ x help listworkspaces
+usage: listworkspaces [-t]
+List all registered workspaces.
+   -t,--asTable          Lists the output in the form of a well formatted table
+086debd6b848:~/xyna_001/server$ ^C
+086debd6b848:~/xyna_001/server$ x help listapplications 
+usage: listapplications [-applicationName <arg>] [-h] [-t] [-v] [-workspaceName <arg>]
+List all registered applications and versions and their state.
+   -applicationName <arg>          The name of the application.
+   -h,--hideDefinitions            Hides application definitions
+   -t,--asTable                    Lists the output in the form of a well formatted table
+   -v,--verbose                    Calculate detailed error status
+   -workspaceName <arg>            The name of the workspace.
+086debd6b848:~/xyna_001/server$ ^C
+086debd6b848:~/xyna_001/server$ x help listproperties 
+usage: listproperties [-lang <arg>] [-p] [-showdoc] [-v] [-vv]
+Lists all XynaProperties and their readers.
+   -lang <arg>                           Documentation language, values are DE or EN or ALL, default
+                                         is EN
+   -p,--prettyPrint                      Prints a nicer format
+   -showdoc,--showDocumentation          Show documentation as well
+   -v,--verbose                          Shows values as well
+   -vv,--extraverbose                    Show properties with defined default value also
+086debd6b848:~/xyna_001/server$ x listproperties -
+Listing information for 26 XynaProperties...
+Name: xfmg.xfctrl.appmgmt.CopyApplicationIntoWorkspace.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.CreateRemoteRuntimeContexts.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.DeleteRemoteRuntimeContexts.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.DeployApplications.Destination  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.ExportApplication.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.ImportApplication.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.ListApplications.Destination  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.ListLocalApplications.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.ListRuntimeDependencyContextDetails.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.MigrateRuntimeContextDependencies.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.ModifyRuntimeDependencyContext.Destination  UNUSED
+Name: xfmg.xfctrl.appmgmt.RemoveApplications.Destination  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.StartApplications.Destination  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.StopApplications.Destination  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.nodemgmt.node_name  Reader: XynaFactory 'NodeManagement'
+Name: xmcp.guihttp.access_control_allow_origin  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.csrf  UNUSED
+Name: xmcp.guihttp.sts  Reader: Filter 'Xyna H5 XDEV'
+Name: xyna.default.monitoringlevel  Reader: XynaFactory 'MonitoringDispatcher'
+Name: xyna.rmi.hostname.registry  Reader: XynaFactory 'RMIManagement'
+Name: xyna.rmi.interlink.hostname.registry  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.port.registry  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.port.registry  Reader: XynaFactory 'RMIManagement'
+Name: xyna.target.mdm.jar.javaversion  UNUSED
+Name: xyna.xfmg.xfctrl.xmomdatabase.discovery_on_startup  UNUSED
+Name: xyna.xprc.xprcods.orderarchive.auditxml.binary  Reader: XynaFactory 'Order Backup'
+086debd6b848:~/xyna_001/server$ x listproperties -v
+Listing information for 26 XynaProperties...
+Name: xfmg.xfctrl.appmgmt.CopyApplicationIntoWorkspace.Destination Value: 'xfmg.xfctrl.appmgmt.CopyApplicationIntoWorkspace@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.CreateRemoteRuntimeContexts.Destination Value: 'xfmg.xfctrl.appmgmt.CreateRemoteRuntimeContexts@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.DeleteRemoteRuntimeContexts.Destination Value: 'xfmg.xfctrl.appmgmt.DeleteRemoteRuntimeContexts@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.DeployApplications.Destination Value: 'xfmg.xfctrl.appmgmt.DeployApplications@GlobalApplicationMgmt/1.0.11'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.ExportApplication.Destination Value: 'xfmg.xfctrl.appmgmt.ExportApplication@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.ImportApplication.Destination Value: 'xfmg.xfctrl.appmgmt.ImportApplication@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.ListApplications.Destination Value: 'xfmg.xfctrl.appmgmt.ListApplications@GlobalApplicationMgmt/1.0.11'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.ListLocalApplications.Destination Value: 'xfmg.xfctrl.appmgmt.ListLocalApplications@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.ListRuntimeDependencyContextDetails.Destination Value: 'xfmg.xfctrl.appmgmt.ListRuntimeDependencyContextDetails@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.MigrateRuntimeContextDependencies.Destination Value: 'xfmg.xfctrl.appmgmt.MigrateRuntimeContextDependencies@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.ModifyRuntimeDependencyContext.Destination Value: 'xfmg.xfctrl.appmgmt.ModifyRuntimeDependencyContext@GlobalApplicationMgmt/1.0.11'  UNUSED
+Name: xfmg.xfctrl.appmgmt.RemoveApplications.Destination Value: 'xfmg.xfctrl.appmgmt.RemoveApplications@GlobalApplicationMgmt/1.0.11'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.StartApplications.Destination Value: 'xfmg.xfctrl.appmgmt.StartApplications@GlobalApplicationMgmt/1.0.11'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.StopApplications.Destination Value: 'xfmg.xfctrl.appmgmt.StopApplications@GlobalApplicationMgmt/1.0.11'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.nodemgmt.node_name Value: 'FactoryNode-40995ea7-2365-4d51-9e00-3665a8b38548'  Reader: XynaFactory 'NodeManagement'
+Name: xmcp.guihttp.access_control_allow_origin Value: '*'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.csrf Value: 'false'  UNUSED
+Name: xmcp.guihttp.sts Value: 'false'  Reader: Filter 'Xyna H5 XDEV'
+Name: xyna.default.monitoringlevel Value: '20'  Reader: XynaFactory 'MonitoringDispatcher'
+Name: xyna.rmi.hostname.registry Value: 'localhost'  Reader: XynaFactory 'RMIManagement'
+Name: xyna.rmi.interlink.hostname.registry Value: 'localhost'  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.port.registry Value: '1099'  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.port.registry Value: '1099'  Reader: XynaFactory 'RMIManagement'
+Name: xyna.target.mdm.jar.javaversion Value: 'Java11'  UNUSED
+Name: xyna.xfmg.xfctrl.xmomdatabase.discovery_on_startup Value: 'true'  UNUSED
+Name: xyna.xprc.xprcods.orderarchive.auditxml.binary Value: 'true'  Reader: XynaFactory 'Order Backup'
+086debd6b848:~/xyna_001/server$ x listproperties -vv
+Listing information for 302 XynaProperties...
+Name: com.gip.xyna.xdev.xlibdev.supp4eclipse.temp_dir Value: not defined Default value: './'  UNUSED
+Name: com.gip.xyna.xprc.XynaExecutor.Planning.UNKNOWN Value: not defined Default value: '75'  Reader: XynaFactory 'XynaExecutor'
+Name: com.gip.xyna.xprc.XynaExecutor.Planning.XynaFactoryCommandLineInterface Value: not defined Default value: '75'  Reader: XynaFactory 'XynaExecutor'
+Name: shutdown.timeout.activeoperations Value: not defined Default value: '10 s'  UNUSED
+Name: shutdown.timeout.cleanup Value: not defined Default value: '5 s'  UNUSED
+Name: shutdown.timeout.factorynodes Value: not defined Default value: '10 s'  UNUSED
+Name: shutdown.timeout.planning Value: not defined Default value: '5 s'  UNUSED
+Name: xact.connection.RuleBasedDeviceType.rules.reload Value: not defined Default value: 'false'  UNUSED
+Name: xact.filter.http.httpforwarding.contentlength.max Value: not defined Default value: '4611686018427387903'  UNUSED
+Name: xact.filter.http.httpforwarding.contentlength.maxifnotset Value: not defined Default value: '4611686018427387903'  UNUSED
+Name: xact.http.default_connect_timeout Value: not defined Default value: '10 s'  Reader: Datatype 'xact.http.HTTPService'
+Name: xact.http.default_encoding Value: not defined Default value: 'UTF-8'  Reader: Trigger 'HTTP Trigger'
+Name: xact.http.default_send_timeout Value: not defined Default value: '10 s'  UNUSED
+Name: xact.http.default_user_agent Value: not defined Default value: 'XynaFactory HTTP-Service'  Reader: Datatype 'xact.http.HTTPService'
+Name: xact.ssh.hostkeys.supportedfeatures Value: not defined Default value: 'LIST, HASHED, FUZZY'  UNUSED
+Name: xact.trigger.stop.timeout Value: not defined Default value: '25000 ms'  UNUSED
+Name: xdev.xlibdev.buildmdmjar.includewfs Value: not defined Default value: 'false'  UNUSED
+Name: xdev.xlibdev.codeaccess.globalfilter Value: not defined Default value: 'class(GenerationBase).map(isFactoryComponent).filter(WhiteList("false")).allMatch()'  UNUSED
+Name: xdev.xtestfactory.infrastructure.testcase.orderinputsource.prefix Value: not defined Default value: 'Order Input Source for Test Case '  Reader: Workflow 'xdev.xtestfactory.infrastructure.services.AddFollowupTestCaseWithOutput', Workflow 'xdev.xtestfactory.infrastructure.gui.AddFollowupTestCase', Workflow 'xdev.xtestfactory.infrastructure.actions.StoreTestCase'
+Name: xfmg.oas.create_list_wrappers Value: not defined Default value: 'false'  Reader: Datatype 'OAS_Base'
+Name: xfmg.xfctrl.appmgmt.CopyApplicationIntoWorkspace.Destination Value: 'xfmg.xfctrl.appmgmt.CopyApplicationIntoWorkspace@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.CopyApplicationIntoWorkspace@GlobalApplicationMgmt/1.0.3'  UNUSED
+Name: xfmg.xfctrl.appmgmt.CreateRemoteRuntimeContexts.Destination Value: 'xfmg.xfctrl.appmgmt.CreateRemoteRuntimeContexts@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.CreateRemoteRuntimeContexts@GlobalApplicationMgmt/1.0.3'  UNUSED
+Name: xfmg.xfctrl.appmgmt.DeleteRemoteRuntimeContexts.Destination Value: 'xfmg.xfctrl.appmgmt.DeleteRemoteRuntimeContexts@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.DeleteRemoteRuntimeContexts@GlobalApplicationMgmt/1.0.3'  UNUSED
+Name: xfmg.xfctrl.appmgmt.DeployApplications.Destination Value: 'xfmg.xfctrl.appmgmt.DeployApplications@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.DeployApplications@GlobalApplicationMgmt/1.0'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.ExportApplication.Destination Value: 'xfmg.xfctrl.appmgmt.ExportApplication@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.ExportApplication@GlobalApplicationMgmt/1.0.3'  UNUSED
+Name: xfmg.xfctrl.appmgmt.ImportApplication.Destination Value: 'xfmg.xfctrl.appmgmt.ImportApplication@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.ImportApplication@GlobalApplicationMgmt/1.0.3'  UNUSED
+Name: xfmg.xfctrl.appmgmt.ListApplications.Destination Value: 'xfmg.xfctrl.appmgmt.ListApplications@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.ListApplications@GlobalApplicationMgmt/1.0'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.ListLocalApplications.Destination Value: 'xfmg.xfctrl.appmgmt.ListLocalApplications@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.ListLocalApplications@GlobalApplicationMgmt/1.0.8'  UNUSED
+Name: xfmg.xfctrl.appmgmt.ListRuntimeDependencyContextDetails.Destination Value: 'xfmg.xfctrl.appmgmt.ListRuntimeDependencyContextDetails@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.ListRuntimeDependencyContextDetails@GlobalApplicationMgmt/1.0.3'  UNUSED
+Name: xfmg.xfctrl.appmgmt.MigrateRuntimeContextDependencies.Destination Value: 'xfmg.xfctrl.appmgmt.MigrateRuntimeContextDependencies@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.MigrateRuntimeContextDependencies@GlobalApplicationMgmt/1.0.3'  UNUSED
+Name: xfmg.xfctrl.appmgmt.ModifyRuntimeDependencyContext.Destination Value: 'xfmg.xfctrl.appmgmt.ModifyRuntimeDependencyContext@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.ModifyRuntimeDependencyContext@GlobalApplicationMgmt/1.0.3'  UNUSED
+Name: xfmg.xfctrl.appmgmt.RemoveApplications.Destination Value: 'xfmg.xfctrl.appmgmt.RemoveApplications@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.RemoveApplications@GlobalApplicationMgmt/1.0'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.StartApplications.Destination Value: 'xfmg.xfctrl.appmgmt.StartApplications@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.StartApplications@GlobalApplicationMgmt/1.0'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.StopApplications.Destination Value: 'xfmg.xfctrl.appmgmt.StopApplications@GlobalApplicationMgmt/1.0.11' Default value: 'xfmg.xfctrl.appmgmt.StopApplications@GlobalApplicationMgmt/1.0'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.appdetails.cache.size Value: not defined Default value: '200'  UNUSED
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.applications Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.applications.rdcatalog_ws Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.filterinstances Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.filterinstances.rdcatalog_ws Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.filters Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.filters.rdcatalog_ws Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.sharedlibs Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.sharedlibs.rdcatalog_ws Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.triggerinstances Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.triggerinstances.rdcatalog_ws Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.triggers Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.triggers.rdcatalog_ws Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.xmomobjects Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.clearworkingset.blacklist.xmomobjects.rdcatalog_ws Value: not defined Default value: ''  Reader: XynaFactory 'WorkspaceManagement'
+Name: xfmg.xfctrl.appmgmt.excludedsubtypesof Value: not defined Default value: 'xnwh.persistence.Storable'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.excludedsubtypesof.rdcatalog_ws Value: not defined Default value: 'xnwh.persistence.Storable'  Reader: XynaFactory 'ApplicationManagement'
+Name: xfmg.xfctrl.appmgmt.showGlobalApplicationManagement Value: not defined Default value: 'false'  UNUSED
+Name: xfmg.xfctrl.appmgmt.useApplicationEntryCache Value: not defined Default value: 'true'  UNUSED
+Name: xfmg.xfctrl.classloading.dependencies.generationbase.reduce Value: not defined Default value: 'true'  UNUSED
+Name: xfmg.xfctrl.classloading.dependencies.types.reduce Value: not defined Default value: 'true'  UNUSED
+Name: xfmg.xfctrl.datamodel.json.createjson.includenulls Value: not defined Default value: 'false'  UNUSED
+Name: xfmg.xfctrl.nodemgmt.interlink.sessioncache.deletion.minage Value: not defined Default value: '5 s'  UNUSED
+Name: xfmg.xfctrl.nodemgmt.node_name Value: 'FactoryNode-40995ea7-2365-4d51-9e00-3665a8b38548' Default value: ''  Reader: XynaFactory 'NodeManagement'
+Name: xfmg.xfctrl.nodemgmt.remotecall.defaultbackupmode Value: not defined Default value: 'BACKUP'  UNUSED
+Name: xfmg.xfctrl.rcdependencies.change.orders.active.behavior Value: not defined Default value: 'ABORT'  UNUSED
+Name: xfmg.xfmon.protocolmsg.enablestorage Value: not defined Default value: 'false'  Reader: Datatype 'xfmg.xfmon.protocolmsg.ProtocolMessageStore'
+Name: xfmg.xfmon.protocolmsg.messagetimeout Value: not defined Default value: '180 s'  Reader: Datatype 'xfmg.xfmon.protocolmsg.ProtocolMessageStore'
+Name: xfmg.xods.orderinputsource.selection.refcnt Value: not defined Default value: 'true'  UNUSED
+Name: xfmg.xods.orderinputsource.selection.state Value: not defined Default value: 'true'  UNUSED
+Name: xfmg.xopctrl.managedsessions.createMultipleSessionsIfAllowed Value: not defined Default value: 'false'  UNUSED
+Name: xmcp.gitintegration.default_repository_path Value: not defined Default value: '../git'  Reader: Datatype 'GitIntegation'
+Name: xmcp.guihttp.access_control_allow_origin Value: '*' Default value: ''  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.compress_response Value: not defined Default value: 'true'  UNUSED
+Name: xmcp.guihttp.csrf Value: 'false'  UNUSED
+Name: xmcp.guihttp.default_workspace Value: not defined Default value: 'default workspace'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.new_constants Value: not defined Default value: 'true'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.startorder.preprocess_workflow Value: not defined Default value: ''  UNUSED
+Name: xmcp.guihttp.static_file_location Value: not defined Default value: '../guihttp'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.sts Value: 'false' Default value: 'true'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.sts.maxage Value: not defined Default value: '730 d'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.suppress_stacktraces Value: not defined Default value: 'false'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.use_cache Value: not defined Default value: 'true'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.guihttp.xmom_cache_size Value: not defined Default value: '100'  Reader: Filter 'Xyna H5 XDEV'
+Name: xmcp.oas.validation.default Value: not defined Default value: 'true'  UNUSED
+Name: xmcp.xfcli.thread.nonpooled.number Value: not defined Default value: '0'  UNUSED
+Name: xnwh.persistence.concurrency.retries Value: not defined Default value: '3'  UNUSED
+Name: xnwh.persistence.concurrency.timeout Value: not defined Default value: '30 s'  UNUSED
+Name: xnwh.persistence.databasequerytoavoidduplicateindexes Value: not defined Default value: 'false'  UNUSED
+Name: xnwh.persistence.hashcharactercounttoavoidduplicateindexes Value: not defined Default value: '5'  UNUSED
+Name: xnwh.persistence.maximumindexnamelength Value: not defined Default value: '64'  UNUSED
+Name: xnwh.persistence.table.show_startup_information_index_collisions Value: not defined Default value: 'always'  Reader: XynaFactory 'XynaFactoryWarehouse'
+Name: xnwh.persistence.xml.cache.default Value: not defined  UNUSED
+Name: xnwh.persistence.xml.journal.maxlength Value: not defined Default value: '10485760'  UNUSED
+Name: xnwh.persistence.xmom.columncount.namingstyle.legacy Value: not defined Default value: 'false'  UNUSED
+Name: xnwh.persistence.xmom.defaultalternativepersistencelayerid Value: not defined Default value: '-1'  UNUSED
+Name: xnwh.persistence.xmom.defaulthistorypersistencelayerid Value: not defined Default value: '-1'  UNUSED
+Name: xnwh.persistence.xmom.defaultpersistencelayerid Value: not defined Default value: '-1'  UNUSED
+Name: xnwh.persistence.xmom.flattening.legacy.readEmptyWrappers Value: not defined Default value: 'false'  UNUSED
+Name: xnwh.persistence.xmom.maximumcolumnnamelength Value: not defined Default value: '64'  UNUSED
+Name: xnwh.persistence.xmom.maximumtablenamelength Value: not defined Default value: '64'  UNUSED
+Name: xnwh.persistence.xmom.references.namingstyle.legacy Value: not defined Default value: 'false'  UNUSED
+Name: xnwh.queries.escape Value: not defined Default value: 'true'  UNUSED
+Name: xnwh.timeseries.storage.rrd4j.cache.expiration Value: not defined Default value: '5 min'  UNUSED
+Name: xnwh.timeseries.storage.rrd4j.cache.size Value: not defined Default value: '1000'  UNUSED
+Name: xnwh.timeseries.storage.rrd4j.cache.sync.interval Value: not defined Default value: '5 min'  UNUSED
+Name: xnwh.timeseries.storage.rrd4j.directory.base Value: not defined Default value: 'storage/timeseries/rrd4j'  UNUSED
+Name: xnwh.timeseries.storage.rrd4j.heartbeat.stepsizefactor Value: not defined Default value: '5'  UNUSED
+Name: xprc.remotecallserialization.useXMLSerialization Value: not defined Default value: 'true'  UNUSED
+Name: xprc.veto.algorithm Value: not defined Default value: 'SeparateThread'  Reader: XynaFactory 'Veto Management'
+Name: xprc.veto.cache_history_size Value: not defined Default value: '0'  Reader: XynaFactory 'Veto Management'
+Name: xprc.xfractwfe.base.internalobjects.workflowimplementation.allow Value: not defined Default value: 'false'  UNUSED
+Name: xprc.xfractwfe.deployment.specialdependencies.deploymentstate.use Value: not defined Default value: 'true'  UNUSED
+Name: xprc.xfractwfe.deployment.specialdependencies.subtypes.use Value: not defined Default value: 'true'  UNUSED
+Name: xprc.xfractwfe.deployment_timeout Value: not defined Default value: '15 s'  UNUSED
+Name: xprc.xfractwfe.different.typeresistant Value: not defined Default value: 'true'  UNUSED
+Name: xprc.xfractwfe.generation.FormalEscaping Value: not defined Default value: 'false'  UNUSED
+Name: xprc.xfractwfe.generation.storable.xmom.interfaces Value: not defined Default value: ''  UNUSED
+Name: xprc.xfractwfe.generation.xmom.generation.debug.creation Value: not defined Default value: 'true'  UNUSED
+Name: xprc.xfractwfe.workflow.childorder.context.inheritfromparent Value: not defined Default value: 'false'  UNUSED
+Name: xprc.xpce.cleanup.capacities.free.late.thread.maximum Value: not defined Default value: '100'  UNUSED
+Name: xprc.xpce.ordersuspension.defaultbackupmode Value: not defined Default value: 'BACKUP'  UNUSED
+Name: xprc.xprcods.orderarchive.archiving.memoryprotection.threshold Value: not defined Default value: '52428800'  UNUSED
+Name: xprc.xprcods.orderarchive.archiving.parallelism.max Value: not defined Default value: '20'  UNUSED
+Name: xprc.xprcods.orderarchive.count.use Value: not defined Default value: 'false'  UNUSED
+Name: xprc.xprcods.orderarchive.count.uselastupdatecondition Value: not defined Default value: 'true'  Reader: XynaFactory 'Orders Archive'
+Name: xprc.xprcods.orderarchive.repository.closefiletoflush Value: not defined Default value: 'false'  UNUSED
+Name: xprc.xprcods.orderarchive.search.queryexpansion.custom0.enabled Value: not defined Default value: 'true'  UNUSED
+Name: xprc.xprcods.orderarchive.search.queryexpansion.custom1.enabled Value: not defined Default value: 'true'  UNUSED
+Name: xprc.xprcods.orderarchive.search.queryexpansion.custom2.enabled Value: not defined Default value: 'true'  UNUSED
+Name: xprc.xprcods.orderarchive.search.queryexpansion.custom3.enabled Value: not defined Default value: 'true'  UNUSED
+Name: xprc.xprcods.orderarchive.search.queryexpansion.ordertype.enabled Value: not defined Default value: 'true'  UNUSED
+Name: xyna.concurrencycalls.listcapacityinfo Value: not defined Default value: '1'  Reader: XynaFactory 'Xyna Multi-Channel Portal'
+Name: xyna.concurrencycalls.listorderseriesinfo Value: not defined Default value: '1'  Reader: XynaFactory 'Xyna Multi-Channel Portal'
+Name: xyna.concurrencycalls.listschedulerinfo Value: not defined Default value: '1'  Reader: XynaFactory 'Xyna Multi-Channel Portal'
+Name: xyna.concurrencycalls.searchorderarchive Value: not defined Default value: '10'  Reader: XynaFactory 'Xyna Multi-Channel Portal'
+Name: xyna.container.xml_wrap Value: not defined Default value: 'true'  UNUSED
+Name: xyna.create.diag.cont Value: not defined Default value: 'false'  UNUSED
+Name: xyna.default.monitoringlevel Value: '20' Default value: '5'  Reader: XynaFactory 'MonitoringDispatcher'
+Name: xyna.default.priority Value: not defined Default value: '-1'  UNUSED
+Name: xyna.exceptions.codegroup.extension.automatic Value: not defined Default value: 'true'  UNUSED
+Name: xyna.exceptions.codegroup.extension.defaultpadding Value: not defined Default value: '5'  UNUSED
+Name: xyna.exceptions.codegroup.extension.defaultpattern Value: not defined Default value: 'DEVEL-[[]]'  UNUSED
+Name: xyna.exceptions.codegroup.storage.reload Value: not defined Default value: 'true'  UNUSED
+Name: xyna.generation.xml.headercomment Value: not defined Default value: ''  UNUSED
+Name: xyna.global.set.ordercontext Value: not defined Default value: 'false'  UNUSED
+Name: xyna.idgen.prefetcher.timeout Value: not defined Default value: '30 s'  UNUSED
+Name: xyna.java.compile.tryproceedonerror Value: not defined Default value: 'true'  UNUSED
+Name: xyna.logging.ordertimings.count Value: not defined Default value: '0'  UNUSED
+Name: xyna.messagebus.request.timeout.millis Value: not defined Default value: '10 s'  UNUSED
+Name: xyna.ordersuspension.workflowstep.timeout Value: not defined Default value: '5 s'  UNUSED
+Name: xyna.persistence.xml.cache.writeInterval Value: not defined Default value: '30000 ms'  UNUSED
+Name: xyna.processmodeller.redo.limit Value: not defined Default value: '50'  Reader: Filter 'Xyna H5 XDEV'
+Name: xyna.processmodeller.undo.limit Value: not defined Default value: '50'  Reader: Filter 'Xyna H5 XDEV'
+Name: xyna.processmonitor.customColumn0.enabled Value: not defined Default value: 'false'  UNUSED
+Name: xyna.processmonitor.customColumn0.label Value: not defined Default value: ''  UNUSED
+Name: xyna.processmonitor.customColumn1.enabled Value: not defined Default value: 'false'  UNUSED
+Name: xyna.processmonitor.customColumn1.label Value: not defined Default value: ''  UNUSED
+Name: xyna.processmonitor.customColumn2.enabled Value: not defined Default value: 'false'  UNUSED
+Name: xyna.processmonitor.customColumn2.label Value: not defined Default value: ''  UNUSED
+Name: xyna.processmonitor.customColumn3.enabled Value: not defined Default value: 'false'  UNUSED
+Name: xyna.processmonitor.customColumn3.label Value: not defined Default value: ''  UNUSED
+Name: xyna.processmonitor.defaultfiltering.application Value: not defined Default value: ''  Reader: Workflow 'xmcp.processmonitor.GetOrderOverview'
+Name: xyna.processmonitor.defaultfiltering.version Value: not defined Default value: ''  Reader: Workflow 'xmcp.processmonitor.GetOrderOverview'
+Name: xyna.processmonitor.defaultfiltering.workspace Value: not defined Default value: ''  Reader: Workflow 'xmcp.processmonitor.GetOrderOverview'
+Name: xyna.processmonitor.orderoverview.limit Value: not defined Default value: '100'  Reader: Workflow 'xmcp.processmonitor.GetOrderOverview'
+Name: xyna.properties.persistence Value: not defined Default value: 'true'  Reader: XynaFactory 'Configuration'
+Name: xyna.rmi.hostname.registry Value: 'localhost' Default value: 'localhost'  Reader: XynaFactory 'RMIManagement'
+Name: xyna.rmi.interlink.hostname.registry Value: 'localhost' Default value: 'localhost'  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.port.communication Value: not defined Default value: '0'  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.port.registry Value: '1099' Default value: '1099'  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.ssl.compression Value: not defined Default value: 'false'  UNUSED
+Name: xyna.rmi.interlink.ssl.compression.buffersize Value: not defined Default value: '131072'  UNUSED
+Name: xyna.rmi.interlink.ssl.keystore.file Value: not defined  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.ssl.keystore.passphrase Value: not defined  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.ssl.keystore.type Value: not defined Default value: 'JKS'  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.ssl.truststore.file Value: not defined  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.ssl.truststore.passphrase Value: not defined  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.ssl.truststore.type Value: not defined Default value: 'JKS'  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.timeout Value: not defined Default value: '180 s'  Reader: XynaFactory 'NodeManagement'
+Name: xyna.rmi.interlink.timeout.filemgmt Value: not defined Default value: '180 s'  UNUSED
+Name: xyna.rmi.interlink.timeout.monitoring Value: not defined Default value: '180 s'  UNUSED
+Name: xyna.rmi.interlink.timeout.runtimecontextmgmt Value: not defined Default value: '180 s'  UNUSED
+Name: xyna.rmi.port.communication Value: not defined Default value: '0'  Reader: XynaFactory 'Xyna Multi-Channel Portal'
+Name: xyna.rmi.port.registry Value: '1099' Default value: '1099'  Reader: XynaFactory 'RMIManagement'
+Name: xyna.rmi.timeout Value: not defined Default value: '15'  Reader: XynaFactory 'RMIManagement'
+Name: xyna.rmi.timeout.server Value: not defined Default value: '600 s'  UNUSED
+Name: xyna.scheduler.orderbackup.duringcronlikescheduling Value: not defined Default value: 'true'  UNUSED
+Name: xyna.scheduler.orderbackupwaitingforscheduling Value: not defined Default value: 'false'  UNUSED
+Name: xyna.scheduler.stop.timeout.offset Value: not defined Default value: '0 ms'  UNUSED
+Name: xyna.target.mdm.jar.javaversion Value: 'Java11' Default value: 'Java11'  UNUSED
+Name: xyna.testfactory.testcases.columns.author Value: not defined Default value: 'true'  Reader: Workflow 'xdev.xtestfactory.infrastructure.gui.GetAllTestCases'
+Name: xyna.testfactory.testcases.columns.description Value: not defined Default value: 'true'  Reader: Workflow 'xdev.xtestfactory.infrastructure.gui.GetAllTestCases'
+Name: xyna.testfactory.testcases.columns.name Value: not defined Default value: 'true'  Reader: Workflow 'xdev.xtestfactory.infrastructure.gui.GetAllTestCases'
+Name: xyna.testfactory.testcases.columns.prority Value: not defined Default value: 'true'  Reader: Workflow 'xdev.xtestfactory.infrastructure.gui.GetAllTestCases'
+Name: xyna.testfactory.testcases.columns.responsibleUser Value: not defined Default value: 'false'  Reader: Workflow 'xdev.xtestfactory.infrastructure.gui.GetAllTestCases'
+Name: xyna.testfactory.testcases.columns.type Value: not defined Default value: 'false'  Reader: Workflow 'xdev.xtestfactory.infrastructure.gui.GetAllTestCases'
+Name: xyna.threadpool.cleanup.keepalive.seconds Value: not defined Default value: '30 s'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.cleanup.max Value: not defined Default value: '500'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.cleanup.min Value: not defined Default value: '10'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.cleanup.queuesize Value: not defined Default value: '0'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.deployment.keepalive.seconds Value: not defined Default value: '60'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.deployment.max Value: not defined Default value: '200'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.execution.keepalive.seconds Value: not defined Default value: '60 s'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.execution.max Value: not defined Default value: '2000'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.execution.min Value: not defined Default value: '0'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.planning.keepalive.seconds Value: not defined Default value: '30 s'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.planning.max Value: not defined Default value: '100'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.planning.min Value: not defined Default value: '10'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.planning.pool_size_strategy Value: not defined Default value: 'eager'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.planning.queuesize Value: not defined Default value: '1000'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.planning.useringbuffer Value: not defined Default value: 'false'  Reader: XynaFactory 'XynaExecutor'
+Name: xyna.threadpool.threadlocalcleanup.skip Value: not defined Default value: 'false'  UNUSED
+Name: xyna.threadpool.warehouse.cursor.keepalive Value: not defined Default value: '10 s'  UNUSED
+Name: xyna.threadpool.warehouse.cursor.threads Value: not defined Default value: '15'  UNUSED
+Name: xyna.utils.misc.table_formatter_pretty_print Value: not defined Default value: '│═╪'  UNUSED
+Name: xyna.wf.poolsize Value: not defined Default value: '100'  UNUSED
+Name: xyna.xdev.temp_dir Value: not defined Default value: '.'  UNUSED
+Name: xyna.xdev.xfractmod.xmdm.deploymenthandler.timeout Value: not defined Default value: '5 min'  UNUSED
+Name: xyna.xfmg.max_further_information Value: not defined Default value: '1000'  UNUSED
+Name: xyna.xfmg.xcs.rmi_retry_attempts Value: not defined Default value: '1'  UNUSED
+Name: xyna.xfmg.xcs.rmi_retry_wait Value: not defined Default value: '10'  UNUSED
+Name: xyna.xfmg.xfctrl.appmgmt.deploymentstate.check Value: not defined Default value: 'true'  UNUSED
+Name: xyna.xfmg.xfctrl.appmgmt.openfiles.safetymargin Value: not defined Default value: '100'  Reader: XynaFactory 'ApplicationManagement'
+Name: xyna.xfmg.xfctrl.appmgmt.permgen.classfactor Value: not defined Default value: '2.2'  Reader: XynaFactory 'ApplicationManagement'
+Name: xyna.xfmg.xfctrl.appmgmt.permgen.jarfactor Value: not defined Default value: '0.2'  Reader: XynaFactory 'ApplicationManagement'
+Name: xyna.xfmg.xfctrl.appmgmt.permgen.safetymargin Value: not defined Default value: '20000000'  Reader: XynaFactory 'ApplicationManagement'
+Name: xyna.xfmg.xfctrl.deploymentmarker.tags Value: not defined Default value: 'root workflow, used for tests, has errors, untested, verified'  UNUSED
+Name: xyna.xfmg.xfctrl.deploymentstate.used_object_impl_check Value: not defined Default value: 'false'  UNUSED
+Name: xyna.xfmg.xfctrl.deploystate.service_impl_inconsistency_time_lag Value: not defined Default value: '10 s'  UNUSED
+Name: xyna.xfmg.xfctrl.filemgmt.default_timeout Value: not defined Default value: '30 min'  UNUSED
+Name: xyna.xfmg.xfctrl.filemgmt.temp_dir Value: not defined Default value: '/tmp/filemgmt'  Reader: XynaFactory 'FileManagement'
+Name: xyna.xfmg.xfctrl.filemgmt.transition_retries Value: not defined Default value: '100'  UNUSED
+Name: xyna.xfmg.xfctrl.nodemgmt.ssh_script Value: not defined Default value: 'deploy_remote_workflow.sh'  UNUSED
+Name: xyna.xfmg.xfctrl.nodemgmt.ssh_script_dir Value: not defined Default value: 'scripts'  UNUSED
+Name: xyna.xfmg.xfctrl.xmomdatabase.discovery_on_startup Value: 'true' Default value: 'false'  UNUSED
+Name: xyna.xfmg.xfmon.frunstats.async_persistence_interval Value: not defined Default value: '30 s'  UNUSED
+Name: xyna.xfmg.xopctrl.managedsessions.sessiondeletioninterval Value: not defined Default value: '1800'  Reader: XynaFactory 'GuiSessionManagement'
+Name: xyna.xfmg.xopctrl.managedsessions.timeout Value: not defined Default value: '900'  Reader: XynaFactory 'GuiSessionManagement'
+Name: xyna.xfmg.xopctrl.usermanagement.login.hashalgorithm Value: not defined Default value: 'MD5'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.login.rounds Value: not defined  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.login.staticsalt Value: not defined  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.password.expiration.changeallowed.duration.days Value: not defined Default value: '0'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.password.expiration.days Value: not defined Default value: '-1'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.password.expiration.exception.unique Value: not defined Default value: 'true'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.password.history.size Value: not defined Default value: '0'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.password.setbyadmin.invalid Value: not defined Default value: 'false'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.password.stored.history.size Value: not defined Default value: '-1'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.persistence.hashalgorithm Value: not defined  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.persistence.recalculate Value: not defined Default value: 'never'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.persistence.rounds Value: not defined Default value: '10'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.persistence.salt.length Value: not defined Default value: '16'  Reader: XynaFactory 'User Management'
+Name: xyna.xfmg.xopctrl.usermanagement.scopedrights.cachesize Value: not defined Default value: '10'  Reader: XynaFactory 'User Management'
+Name: xyna.xfqctrl.rate.threadsleep.minvalue Value: not defined Default value: '30 ms'  UNUSED
+Name: xyna.xfqctrl.rate.threadsleep.type Value: not defined Default value: 'NORMALSLEEP'  UNUSED
+Name: xyna.xmcp.xfcli.language_preference Value: not defined Default value: 'EN,DE'  UNUSED
+Name: xyna.xmcp.xopctrl.authentication.exceptionhandling.userlocked.differs Value: not defined Default value: 'false'  UNUSED
+Name: xyna.xnwh.persistence.dbmodifytable.defaultSize Value: not defined Default value: '128'  UNUSED
+Name: xyna.xnwh.persistence.xmom.flattening.auto.mode Value: not defined Default value: 'NONE'  UNUSED
+Name: xyna.xnwh.xcs.timeout.capacity.migration Value: not defined Default value: '10000'  UNUSED
+Name: xyna.xnwh.xcs.timeout.order.migration Value: not defined Default value: '10000'  Reader: XynaFactory 'Order Backup'
+Name: xyna.xnwh.xwarehousejobs.defaultBatchSize Value: not defined Default value: '1000'  UNUSED
+Name: xyna.xprc.orderstartupmode Value: not defined Default value: 'UNSAFE'  UNUSED
+Name: xyna.xprc.synchronization.activewait.timeout Value: not defined Default value: '0'  UNUSED
+Name: xyna.xprc.synchronization.answer.default_timeout Value: not defined Default value: '120'  UNUSED
+Name: xyna.xprc.waitsuspend.suspension.threshold Value: not defined Default value: '2 s'  UNUSED
+Name: xyna.xprc.waitsuspend.wait.threshold Value: not defined Default value: '15 s'  UNUSED
+Name: xyna.xprc.xbatchmgmt.cancel_wait_timeout Value: not defined Default value: '5 s'  UNUSED
+Name: xyna.xprc.xbatchmgmt.default_master Value: not defined Default value: 'xprc.xbatchmgmt.DefaultEmptyMasterWorkflow'  UNUSED
+Name: xyna.xprc.xbatchmgmt.input_max_rows Value: not defined Default value: '100'  UNUSED
+Name: xyna.xprc.xbatchmgmt.max_parallelism Value: not defined Default value: '10'  UNUSED
+Name: xyna.xprc.xbatchmgmt.reaction_on_missing_limitation Value: not defined Default value: 'SlowDown'  UNUSED
+Name: xyna.xprc.xfracfwe.generation.exceptionOnDeployNoClassFileUpdate Value: not defined Default value: 'true'  UNUSED
+Name: xyna.xprc.xfractwfe.invalidate_wf_execution Value: not defined Default value: 'true'  UNUSED
+Name: xyna.xprc.xfractwfe.objectversioning.mode Value: not defined Default value: '4'  UNUSED
+Name: xyna.xprc.xfractwfe.xynaobject_has_generated_tostring_method Value: not defined Default value: 'false'  UNUSED
+Name: xyna.xprc.xpce.cleanup_workflow_before_freeing_cap_and_veto Value: not defined Default value: 'false'  UNUSED
+Name: xyna.xprc.xpce.ordersuspension.backup_failed_action Value: not defined Default value: 'KeepRunning'  Reader: XynaFactory 'SuspendResumeManagement'
+Name: xyna.xprc.xpce.ordersuspension.show_srinformation_lock_info Value: not defined Default value: 'false'  Reader: XynaFactory 'SuspendResumeManagement'
+Name: xyna.xprc.xpce.planning.throwOnDuplicateOrdertype Value: not defined Default value: 'true'  UNUSED
+Name: xyna.xprc.xpce.resume_retry_delay Value: not defined Default value: '10 s'  Reader: XynaFactory 'SuspendResumeManagement'
+Name: xyna.xprc.xprcods.orderarchive.auditxml.binary Value: 'true' Default value: 'false'  Reader: XynaFactory 'Order Backup'
+Name: xyna.xprc.xprcods.workflowdb.singlebatchdeploy Value: not defined Default value: 'true'  UNUSED
+Name: xyna.xprc.xprcods.xyna_backup_read_retries Value: not defined Default value: '-1'  Reader: XynaFactory 'Order Backup'
+Name: xyna.xprc.xprcods.xyna_backup_read_retry_wait Value: not defined Default value: '2 s'  Reader: XynaFactory 'Order Backup'
+Name: xyna.xprc.xprcods.xyna_backup_store_retries Value: not defined Default value: '-1'  Reader: XynaFactory 'Order Backup'
+Name: xyna.xprc.xprcods.xyna_backup_store_retry_wait Value: not defined Default value: '2 s'  Reader: XynaFactory 'Order Backup'
+Name: xyna.xprc.xsched.capacity.demand.foreign.penalty Value: not defined Default value: '0'  UNUSED
+Name: xyna.xprc.xsched.capacity.demand.max.percent Value: not defined Default value: '10'  UNUSED
+Name: xyna.xprc.xsched.capacitydemand_ignore_percentage Value: not defined Default value: '0.05'  UNUSED
+Name: xyna.xprc.xsched.enforceurgency Value: not defined Default value: 'true'  UNUSED
+Name: xyna.xprc.xsched.max_retries Value: not defined Default value: '10'  UNUSED
+Name: xyna.xprc.xsched.orderabortion.compensate Value: not defined Default value: 'true'  UNUSED
+Name: xyna.xprc.xsched.orders.memory.max Value: not defined Default value: '10000'  Reader: XynaFactory 'AllOrdersList'
+Name: xyna.xprc.xsched.queue.max Value: not defined Default value: '250'  Reader: XynaFactory 'CronLikeTimer'
+Name: xyna.xprc.xsched.reaction.on.general.exception Value: not defined Default value: 'HaltScheduler'  UNUSED
+Name: xyna.xprc.xsched.reaction.on.oom.error Value: not defined Default value: 'HaltScheduler'  UNUSED
+Name: xyna.xprc.xsched.reaction.on.order.with.too.high.capacity.cardinality Value: not defined Default value: 'Wait'  UNUSED
+Name: xyna.xprc.xsched.reaction.on.order.with.undefined.capacity Value: not defined Default value: 'Wait'  UNUSED
+Name: xyna.xprc.xsched.reaction.on.order.with.undefined.timewindow Value: not defined Default value: 'Wait'  UNUSED
+Name: xyna.xprc.xsched.series.clean.database Value: not defined Default value: 'false'  UNUSED
+Name: xyna.xprc.xsched.series.lock.parallelism Value: not defined Default value: '32'  UNUSED
+Name: xyna.xprc.xsched.series.max.pre.trees.in.cache Value: not defined Default value: '5000'  UNUSED
+Name: xyna.xprc.xsched.series.max.si.storables.in.cache Value: not defined Default value: '1000'  UNUSED
+Name: xyna.xprc.xsched.series.queue.size Value: not defined Default value: '1000'  UNUSED
+Name: xyna.xprc.xsched.timeduration_before_remove_waiting_order_from_scheduling Value: not defined Default value: '0 ms'  UNUSED
+Name: xyna.xprc.xsched.wait_for_stable_time_windows Value: not defined Default value: 'true'  Reader: XynaFactory 'Time Constraint Management'
+Name: zeta.table.limit Value: not defined Default value: '100'  Reader: Workflow 'xdev.xtestfactory.infrastructure.selector.GetTestCasesForSelection'
+086debd6b848:~/xyna_001/server$
+086debd6b848:~/xyna_001/server$ x help set
+usage: set [-g] -key <arg> [-n] -value <arg>
+Set a property value.
+   -g,--global           Sets the property for all nodes in a cluster
+   -key <arg>            The name of the property to be set
+   -n,--notSet           Sets the property only if no value is set yet
+   -value <arg>          The new value
+086debd6b848:~/xyna_001/server$ x help get
+usage: get [-d] -key <arg> [-lang <arg>] [-p] [-v]
+Print a property value.
+   -d,--showDoc              Shows documentation
+   -key <arg>                The name of the property to be read
+   -lang <arg>               Documentation language, values are DE or EN or ALL, default is EN
+   -p,--prettyPrint          Prints a nicer format
+   -v,--verbose              Shows default value
+086debd6b848:~/xyna_001/server$

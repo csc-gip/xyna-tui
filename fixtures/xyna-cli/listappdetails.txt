@@ -1,0 +1,146 @@
+086debd6b848:/tmp/xyna-tui$ x help listapplicationdetails 
+usage: listapplicationdetails [-applicationName <arg>] [-excludeEntryTypes <args>]
+       [-excludeSubtypesOf <args>] [-fileName <arg>] [-parentWorkspace <arg>] [-r] [-v]
+       [-versionName <arg>] [-vo]
+List all objects, which are linked to an application.
+   -applicationName <arg>                The name of the application.
+   -excludeEntryTypes <args>             Excludes different entry-lists from output
+   -excludeSubtypesOf <args>             Base types whose subtypes will be taken into a new version
+                                         only when they are directly needed (by default subtypes of
+                                         service-outputs will be included automatically into a new
+                                         version). Use '*' for all subtypes.
+   -fileName <arg>                       The name of the application file.
+   -parentWorkspace <arg>                The name of the parent workspace.
+   -r,--onlyMissingRequirements          Show only missing application requirements.
+   -v,--verbose                          Enables verbose output and shows also objects that the
+                                         application depends on
+   -versionName <arg>                    A version name. The application definition will be default.
+                                         If there is no application definition, the highest version
+                                         of the application is used.
+   -vo,--versionOnly                     Show only application version.
+086debd6b848:~/xyna_001/server$ x listapplicationdetails -applicationName Base
+Base 1.1.4
+
+ state STOPPED
+
+WORKFLOW:
+ xmcp.manualinteraction.ManualInteraction
+ xnwh.persistence.Count
+ xnwh.persistence.Delete
+ xnwh.persistence.Query
+ xnwh.persistence.Store
+ xnwh.persistence.Update
+DATATYPE:
+ base.Credentials
+ base.DetailedDescription
+ base.File
+ base.Host
+ base.IP
+ base.IPv4
+ base.IPv6
+ base.KeyValue
+ base.LockState
+ base.Password
+ base.Port
+ base.Subnet
+ base.Subnetv4
+ base.Text
+ base.date.AbsoluteDate
+ base.date.CustomDateFormat
+ base.date.Date
+ base.date.DateFormat
+ base.date.Forever
+ base.date.Now
+ base.date.RelativeDate
+ base.date.format.YyyyMMDdTHHMmSs
+ base.locale.De_DEGerman
+ base.locale.En_USEnglish
+ base.locale.Locale
+ base.math.DoubleFormatSpecifier
+ base.math.DoubleNumber
+ base.math.IntegerNumber
+ base.math.MathUtils
+ core.exception.ExceptionDetails
+ core.exception.ExceptionHolder
+ core.exception.ExceptionMessage
+ core.exception.ExceptionService
+ xact.connection.Command
+ xact.connection.CommandResponseTuple
+ xact.connection.Response
+ xact.templates.CommandLineInterface
+ xact.templates.Document
+ xact.templates.DocumentContext
+ xact.templates.DocumentPart
+ xact.templates.DocumentType
+ xact.templates.HTML
+ xact.templates.NETCONF
+ xact.templates.PlainText
+ xact.templates.TemplateManagement
+ xact.templates.XML
+ xfmg.xfctrl.datamodel.DataModel
+ xfmg.xfctrl.datamodel.DataModelSpecific
+ xfmg.xfctrl.datamodel.XmomType
+ xmcp.manualinteraction.Abort
+ xmcp.manualinteraction.Continue
+ xmcp.manualinteraction.MIService
+ xmcp.manualinteraction.Reason
+ xmcp.manualinteraction.Result
+ xmcp.manualinteraction.Retry
+ xmcp.manualinteraction.Todo
+ xmcp.manualinteraction.Type
+ xmcp.manualinteraction.UserGroup
+ xnwh.persistence.Alternative
+ xnwh.persistence.ConnectionType
+ xnwh.persistence.Default
+ xnwh.persistence.DeleteParameter
+ xnwh.persistence.ExtendedParameter
+ xnwh.persistence.FilterCondition
+ xnwh.persistence.History
+ xnwh.persistence.PersistenceServices
+ xnwh.persistence.QueryParameter
+ xnwh.persistence.ReferenceHandling
+ xnwh.persistence.SelectionMask
+ xnwh.persistence.SortCriterion
+ xnwh.persistence.Storable
+ xnwh.persistence.StoreParameter
+ xnwh.persistence.UpdateParameter
+ xprc.retry.RetryParameter
+ xprc.synchronization.CorrelationId
+ xprc.synchronization.Synchronization
+ xprc.synchronization.SynchronizationAnswer
+ xprc.synchronization.Timeout
+ xprc.waitsuspend.AbsoluteTimeConfiguration
+ xprc.waitsuspend.Days
+ xprc.waitsuspend.Hours
+ xprc.waitsuspend.Minutes
+ xprc.waitsuspend.Months
+ xprc.waitsuspend.RelativeTimeConfiguration
+ xprc.waitsuspend.Seconds
+ xprc.waitsuspend.TimeConfiguration
+ xprc.waitsuspend.TimezoneOffset
+ xprc.waitsuspend.WaitAndSuspendFeature
+ xprc.waitsuspend.Years
+EXCEPTION:
+ base.date.InvalidDateStringException
+ core.exception.Exception
+ core.exception.XynaException
+ core.exception.XynaExceptionBase
+ xact.connection.DetectedError
+ xmcp.manualinteraction.ManualInteractionAbortedException
+ xnwh.persistence.XMOMStorableAccessException
+ xnwh.persistence.XMOMStorableMaxLengthValidationException
+ xnwh.persistence.XMOMStorableValidationException
+ xprc.synchronization.DuplicateCorrelationID
+ xprc.synchronization.TimeoutDuringSynchronization
+ xprc.waitsuspend.SuspensionError
+ xprc.waitsuspend.WaitingError
+ORDERTYPE:
+ xmcp.manualinteraction.ManualInteraction
+ORDER ENTRY INTERFACES:
+ start order: RMI closed, CLI closed
+ batch processes: 0 enabled, 0 disabled
+ cron like orders: 0 enabled, 0 disabled
+ frequency controlled tasks: 0
+ trigger instances: 0 enabled, 0 disabled, 0 erroneous
+ filter instances: 0 enabled, 0 disabled, 0 erroneous
+086debd6b848:~/xyna_001/server$

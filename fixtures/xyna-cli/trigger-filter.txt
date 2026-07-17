@@ -1,0 +1,133 @@
+086debd6b848:~/xyna_001/server$ x listfilters -c
+Listing deployment status information filters...
+Id │ FilterName           │ ClassName            │ Description │ RuntimeContext                         │ Status │ Instances
+═══╪══════════════════════╪══════════════════════╪═════════════╪════════════════════════════════════════╪════════╪══════════
+1  │ GUIHTTP              │ GUIHTTPFilter        │ null        │ Application 'GuiHttp', Version '1.4.3' │ OK     │ 1        
+2  │ H5XdevFilter         │ H5XdevFilter         │ null        │ Application 'GuiHttp', Version '1.4.3' │ OK     │ 1        
+3  │ HTTPForwardingFilter │ HTTPForwardingFilter │ null        │ Application 'Http', Version '1.5.9'    │ OK     │ 0        
+
+Id │ Instance             │ TriggerInstance │ Filter           │ Description │ RuntimeContext                         │ Status  │ Optional
+═══╪══════════════════════╪═════════════════╪══════════════════╪═════════════╪════════════════════════════════════════╪═════════╪═════════
+1  │ HttpIni              │ Http            │ (1) GUIHTTP      │ null        │ Application 'GuiHttp', Version '1.4.3' │ ENABLED │         
+2  │ H5XdevFilterinstance │ Http            │ (2) H5XdevFilter │ null        │ Application 'GuiHttp', Version '1.4.3' │ ENABLED │         
+
+Id │ Instance │ ConfigurationParameter
+═══╪══════════╪═══════════════════════
+1  │ Http     │                       
+2  │ Http     │                       
+
+086debd6b848:~/xyna_001/server$ x listtriggers -s
+Listing deployment status information triggers...
+Id │ Trigger     │ Name │ Description  │ RuntimeContext                      │ Status │ Instances
+═══╪═════════════╪══════╪══════════════╪═════════════════════════════════════╪════════╪══════════
+1  │ HTTPTrigger │ Http │ HTTP Trigger │ Application 'Http', Version '1.5.9' │ OK     │ 1        
+
+Id │ Instance │ Trigger  │ Description │ RuntimeContext                         │ Status 
+═══╪══════════╪══════════╪═════════════╪════════════════════════════════════════╪════════
+1  │ Http     │ (1) Http │ null        │ Application 'GuiHttp', Version '1.4.3' │ ENABLED
+
+Id │ Instance │ StartParameter
+═══╪══════════╪═══════════════
+1  │ Http     │ 4245          
+086debd6b848:~/xyna_001/server$ x listtriggers -v
+Listing deployment status information triggers...
+Id │ Trigger     │ Name │ Description  │ RuntimeContext                      │ Status │ Instances
+═══╪═════════════╪══════╪══════════════╪═════════════════════════════════════╪════════╪══════════
+1  │ HTTPTrigger │ Http │ HTTP Trigger │ Application 'Http', Version '1.5.9' │ OK     │ 1        
+
+Id │ Instance │ Trigger  │ Description │ RuntimeContext                         │ Status 
+═══╪══════════╪══════════╪═════════════╪════════════════════════════════════════╪════════
+1  │ Http     │ (1) Http │ null        │ Application 'GuiHttp', Version '1.4.3' │ ENABLED
+
+HTTPTrigger (Id 1)
+  possible start parameter as key/value pairs (key=value):
+    - port: Port (mandatory, type=Integer)
+    - address: Name of ip in NetworkConfigurationManagement or network interface name (Default: Accept connections from all interfaces) (optional, type=String, default="")
+    - protocol: Network interface protocol (optional, type=Enum(IPV4, IPV6), default=IPV4)
+    - https: Use HTTP or HTTPS with SSL context, NONE: http, FILE: https and parameters for a shared Key/Trust-File, KEY_MGMT: https and parameters for a key store and a trust manager (optional, type=Enum(NONE, FILE, KEY_MGMT, FALSE, TRUE), default=NONE)
+    - clientauth: Clientauthentication (mandatory for [https="FILE", https="KEY_MGMT"], type=Enum(require, optional, none))
+    - keystorepath: Keystore Path (mandatory for [https="FILE"], type=String)
+    - keystorepasswd: Keystore Password (mandatory for [https="FILE"], type=String)
+    - keystoretype: Keystore Type (optional, type=String, default="JKS")
+    - keystorename: Keystore Name (mandatory for [https="KEY_MGMT"], type=String)
+    - trustmanagername: TrustManager Name (optional, type=String)
+    - ssl: TLS protocol (optional, type=String, default="TLSv1.3")
+    - suppressRequestLogging: Suppress request dependent logging. (optional, type=Boolean, default=false)
+086debd6b848:~/xyna_001/server$
+086debd6b848:~/xyna_001/server$ x help listfilters 
+usage: listfilters [-c] [-e] [-i] [-o] [-r] [-v]
+Lists all filters, their deployment status and the trigger they are deployed on.
+   -c,--instanceConfigurationParameter          Print informations for instance configuration
+                                                parameters.
+   -e,--error                                   Print stacktrace information in the case of errors.
+   -i,--instancesOnly                           Print informations for instances only.
+   -o,--oldFormat                               Prints in old format, option e is recognized.
+   -r,--sortByRuntimeContext                    Orders by runtime context name instead of filter
+                                                name.
+   -v,--verbose                                 Print possible configuration parameter combinations.
+086debd6b848:~/xyna_001/server$ x help listtriggers 
+usage: listtriggers [-e] [-i] [-o] [-r] [-s] [-v]
+Lists all triggers and triggerinstances, their deployment status and start parameters.
+   -e,--error                           Print stacktrace information in the case of errors.
+   -i,--instancesOnly                   Print informations for instances only.
+   -o,--oldFormat                       Prints in old format, options v and e were recognized.
+   -r,--sortByRuntimeContext            Orders by runtime context name instead of trigger name.
+   -s,--instanceStartParameter          Print informations for instance startparameters.
+   -v,--verbose                         Print possible start parameter combinations.
+086debd6b848:~/xyna_001/server$
+086debd6b848:~/xyna_001/server$ x help deployfilter 
+usage: deployfilter [-applicationName <arg>] [-configurationParameter <args>] [-documentation <arg>]
+       -filterInstanceName <arg> -filterName <arg> [-o] -triggerInstanceName <arg> [-v]
+       [-versionName <arg>] [-workspaceName <arg>]
+Instantiate the filter with the given name and attach to specified trigger.
+   -applicationName <arg>                  The name of the application.
+   -configurationParameter <args>          The configuration parameters for the filter as shown by
+                                           '-configurationParameter help' or 'listfilters -v'
+   -documentation <arg>                    Description of the filter instance
+   -filterInstanceName <arg>               The name of the new filter instance
+   -filterName <arg>                       The name of the filter of which a new instance is
+                                           supposed to be created
+   -o,--optional                           The trigger thread is allowed to run even if this filter
+                                           instance is in error state.
+   -triggerInstanceName <arg>              The trigger instance that the filter instance is attached
+                                           to
+   -v,--verbose                            Print verbose output of the state after the operation has
+                                           finished.
+   -versionName <arg>                      The name of the version of the application.
+   -workspaceName <arg>                    The name of the workspace.
+086debd6b848:~/xyna_001/server$ x help undeployfilter 
+usage: undeployfilter [-applicationName <arg>] -filterInstanceName <arg> [-v] [-versionName <arg>]
+       [-workspaceName <arg>]
+Remove a filter instance from its associated trigger instance.
+   -applicationName <arg>             The name of the application.
+   -filterInstanceName <arg>          The name of the filter instance to be removed
+   -v,--verbose                       Print verbose output of the state after the operation has
+                                      finished.
+   -versionName <arg>                 The name of the version of the application.
+   -workspaceName <arg>               The name of the workspace.
+086debd6b848:~/xyna_001/server$ x help undeploytrigger 
+usage: undeploytrigger [-applicationName <arg>] -triggerInstanceName <arg> -triggerName <arg> [-v]
+       [-versionName <arg>] [-workspaceName <arg>]
+Disable and stop a trigger instance, thereby undeploying eventually associated filter instances.
+   -applicationName <arg>              The name of the application.
+   -triggerInstanceName <arg>          The name of the trigger instance to be removed
+   -triggerName <arg>                  The name of the trigger to be removed
+   -v,--verbose                        Print verbose output of the state after the operation has
+                                       finished.
+   -versionName <arg>                  The name of the version of the application.
+   -workspaceName <arg>                The name of the workspace.
+086debd6b848:~/xyna_001/server$ x help deploytrigger 
+usage: deploytrigger [-applicationName <arg>] [-startParameters <args>] -triggerInstanceName <arg>
+       -triggerName <arg> [-v] [-versionName <arg>] [-workspaceName <arg>]
+Instantiate the trigger with the specified name.
+   -applicationName <arg>              The name of the application.
+   -startParameters <args>             The start parameters for the trigger as shown by
+                                       'listtriggers -v'
+   -triggerInstanceName <arg>          The name of the new trigger instance
+   -triggerName <arg>                  The name of the trigger of which a new instance is supposed
+                                       to be created
+   -v,--verbose                        Print verbose output of the state after the operation has
+                                       finished.
+   -versionName <arg>                  The name of the version of the application.
+   -workspaceName <arg>                The name of the workspace.
+086debd6b848:~/xyna_001/server$

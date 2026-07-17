@@ -1,0 +1,22 @@
+086debd6b848:~/xyna_001/server$ x listconnectionpools
+ Name                                     Pooltype         State        used / size waiting   
+ xyna_default_h2                          H2DB:MySQL       Running      0    / 5    0         
+ xyna_default_h2_dedicated                H2DB:MySQL       Running      6    / 6+   0         
+ xyna_default_memory_h2                   H2DB:MySQL       Running      0    / 5    0         
+ xyna_default_memory_h2_dedicated         H2DB:MySQL       Running      0    / 0+   0         
+ xyna_history_h2                          H2DB:MySQL       Running      0    / 5    0         
+ xyna_history_h2_dedicated                H2DB:MySQL       Running      0    / 0+   0         
+086debd6b848:~/xyna_001/server$ x listconnectionpools -t
+Name                             │ Type       │ State   │ Used │ Size │ Waiting │ User │ Params │ Retries │ ConnectString                                                 │ ValidationInterval
+═════════════════════════════════╪════════════╪═════════╪══════╪══════╪═════════╪══════╪════════╪═════════╪═══════════════════════════════════════════════════════════════╪═══════════════════
+xyna_default_h2                  │ H2DB:MySQL │ Running │ 0    │ 5    │ 0       │ xyna │ []     │ 3       │ jdbc:h2:/opt/xyna/xyna_001/server/storage/defaultDEFAULT/xyna │ 10000             
+xyna_default_h2_dedicated        │ H2DB:MySQL │ Running │ 6    │ 6+   │ 0       │ xyna │ []     │ 3       │ jdbc:h2:/opt/xyna/xyna_001/server/storage/defaultDEFAULT/xyna │ 10000             
+xyna_default_memory_h2           │ H2DB:MySQL │ Running │ 0    │ 5    │ 0       │ xyna │ []     │ 3       │ jdbc:h2:mem:xyna_default_memory                               │ 10000             
+xyna_default_memory_h2_dedicated │ H2DB:MySQL │ Running │ 0    │ 0+   │ 0       │ xyna │ []     │ 3       │ jdbc:h2:mem:xyna_default_memory                               │ 10000             
+xyna_history_h2                  │ H2DB:MySQL │ Running │ 0    │ 5    │ 0       │ xyna │ []     │ 3       │ jdbc:h2:/opt/xyna/xyna_001/server/storage/defaultHISTORY/xyna │ 10000             
+xyna_history_h2_dedicated        │ H2DB:MySQL │ Running │ 0    │ 0+   │ 0       │ xyna │ []     │ 3       │ jdbc:h2:/opt/xyna/xyna_001/server/storage/defaultHISTORY/xyna │ 10000             
+086debd6b848:~/xyna_001/server$ x help listconnectionpools
+usage: listconnectionpools [-t]
+Shows statistics about connection pools.
+   -t,--asTable          Lists the output in the form of a well formatted table
+086debd6b848:~/xyna_001/server$

@@ -1,0 +1,21 @@
+086debd6b848:/tmp/xyna-tui$ x help printdependencies 
+usage: printdependencies [-applicationName <arg>] -object <arg> -objectType <arg> [-r] [-versionName
+       <arg>] [-workspaceName <arg>]
+Prints the dependencies of the specified object
+   -applicationName <arg>          The name of the application.
+   -object <arg>                   The object whose dependencies are requested
+   -objectType <arg>               Valid values are: Datatype, Workflow, Trigger, Filter,
+                                   XynaProperty, XynaFactory, SharedLib, XynaException
+   -r,--recurse                    Search for dependencies recursively and print the whole tree
+   -versionName <arg>              A version name of the application.
+   -workspaceName <arg>            The name of the workspace.
+086debd6b848:~/xyna_001/server$ x listwfs
+Listing deployment status information for 1 elements...
+        Name: csc.test.TestKeyInfo, deployment status: DEPLOYED
+086debd6b848:~/xyna_001/server$ x printdependencies -object csc.test.TestKeyInfo
+Error: MissingOptionException Missing required option: objectType
+086debd6b848:~/xyna_001/server$ x printdependencies -object csc.test.TestKeyInfo -objectType Workflow
+Found the following direct dependencies:
+* WORKFLOW: csc.test.TestKeyInfo (Workspace 'default workspace')
+ . * ORDERTYPE: csc.test.TestKeyInfo (Workspace 'default workspace')
+086debd6b848:~/xyna_001/server$

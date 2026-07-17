@@ -1,0 +1,17 @@
+086debd6b848:~/xyna_001/server$ x help listworkspacedetails 
+usage: listworkspacedetails -workspaceName <arg>
+Show detailed information on a workspace.
+   -workspaceName <arg>          The name of the workspace
+086debd6b848:~/xyna_001/server$ x listworkspacedetails 
+Error: MissingOptionException Missing required option: workspaceName
+086debd6b848:~/xyna_001/server$ x listworkspacedetails -workspaceName "default workspace"
+default workspace
+
+ state OK
+ requires: 
+  Application 'SSH', Version '2.0.42'
+  Application 'Base', Version '1.1.4'
+  Application 'Processing', Version '1.0.28'
+  Application 'Http', Version '1.5.9'
+
+086debd6b848:~/xyna_001/server$

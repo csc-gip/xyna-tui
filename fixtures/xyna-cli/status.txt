@@ -1,0 +1,61 @@
+086debd6b848:~/xyna_001/server$ x uptime
+Server started: 2026-07-17T12:33:10Z
+Uptime: 15m29s
+086debd6b848:~/xyna_001/server$ x systeminfo
+unknown command "systeminfo". try "help"
+086debd6b848:~/xyna_001/server$ x listsysteminfo 
+System time: 2026-07-17T12:48:56Z
+Operating System: Linux (Version 5.15.167.4-microsoft-standard-WSL2, architecture amd64)
+Java Vendor: Azul Systems, Inc. (Version 21.0.11, java home /usr/lib/jvm/zulu21-ca)
+
+CPU Info: 
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+ * AuthenticAMD AMD Ryzen 7 5700U with Radeon Graphics @ 1797
+
+System Memory Info: 
+20828780 kB free memory / 24613192 kB total memory
+0 kB free swap / 0 kB total swap
+
+JVM Memory Info:
+
+       310684/462848 kB used, max=   6156288 kB for Heap type=null
+       200817/218560 kB used, max=         0 kB for Non-Heap type=null
+   All known memory pools:
+           1871/3712 kB used, max=      7428 kB for CodeHeap 'non-nmethods' type=Non-heap memory
+       132394/140736 kB used, max=         0 kB for Metaspace type=Non-heap memory
+         31432/36480 kB used, max=    119164 kB for CodeHeap 'profiled nmethods' type=Non-heap memory
+         15471/17728 kB used, max=   1048576 kB for Compressed Class Space type=Non-heap memory
+       118784/245760 kB used, max=         0 kB for G1 Eden Space type=Heap memory
+       185852/208896 kB used, max=   6156288 kB for G1 Old Gen type=Heap memory
+           6048/8192 kB used, max=         0 kB for G1 Survivor Space type=Heap memory
+         19655/19904 kB used, max=    119168 kB for CodeHeap 'non-profiled nmethods' type=Non-heap memory
+   Number of pending object finalizations: 0
+
+StackSize: 1024 kB
+59 active threads
+
+146,848 kB free within current heap
+315,999 kB actively occupied by objects within heap
+462,848 kB current total heap size
+6,156,288 kB max heap size
+
+193 / 1048576 open file descriptors
+
+086debd6b848:~/xyna_001/server$ x version
+Xyna Factory Server version: 10.8.0.0
+Xyna Factory XMOM version: 1.8
+086debd6b848:~/xyna_001/server$
