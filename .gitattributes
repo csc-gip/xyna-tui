@@ -1,0 +1,8 @@
+* text=auto
+
+# Linux/container-facing scripts must use LF.
+*.sh text eol=lf
+scratch/container-tools/xyna-tui text eol=lf
+
+# Keep Python files consistent across environments.
+*.py text eol=lf

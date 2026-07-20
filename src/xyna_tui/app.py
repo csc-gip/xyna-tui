@@ -4,8 +4,10 @@ import os
 from pathlib import Path
 
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.binding import Binding
+from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
+from textual.theme import Theme
 from textual.widgets import DataTable, Header, Input, Static, TabbedContent, TabPane, Tree
 
 from .dependency_tree import (
@@ -21,11 +23,111 @@ from .models import (
     ApplicationRecord,
     ContentItemRecord,
     DependencyRecord,
+    DeploymentItemRecord,
     ObjectSelectionRecord,
     WorkspaceDetailsRecord,
     WorkspaceRecord,
 )
 from .service import XynaService
+
+_STATE_COLORS: dict[str, str] = {
+    "DEPLOYED": "green",
+    "INVALID": "red",
+    "SAVED": "yellow",
+}
+
+
+def _render_deployment_tree(
+    tree: Tree,
+    record: DeploymentItemRecord | None,
+    error: str | None = None,
+) -> None:
+    """Populate *tree* with structured deployment-item data."""
+    tree.clear()
+    tree.root.label = "Deployment Details"
+    tree.root.expand()
+
+    if error is not None:
+        err_node = tree.root.add("[red]Error loading details[/red]")
+        err_node.add(error)
+        return
+    if record is None:
+        return
+
+    state_color = _STATE_COLORS.get(record.state, "white")
+    is_ok = record.state == "DEPLOYED" and not record.errors_deployed and not record.errors_saved
+
+    # ── Summary ──────────────────────────────────────────────────────────────
+    summary = tree.root.add("[bold]Summary[/bold]")
+    summary.expand()
+    summary.add(f"Type    : {record.item_type}")
+    summary.add(f"State   : [{state_color}]{record.state}[/{state_color}]")
+    summary.add(f"Context : {record.runtime_context}")
+
+    # ── Issues (only when there are errors) ──────────────────────────────────
+    all_errors = record.errors_saved + record.errors_deployed
+    if all_errors:
+        # Check if SAVED and DEPLOYED differ
+        saved_set = set(record.errors_saved)
+        deployed_set = set(record.errors_deployed)
+        states_differ = saved_set != deployed_set
+
+        n_errors = len(set(all_errors))  # unique count
+        plural = "s" if n_errors != 1 else ""
+        issues = tree.root.add(
+            f"[red bold]\u26a0  Issues ({n_errors} error{plural})[/red bold]"
+        )
+        issues.expand()
+
+        if states_differ:
+            # Show SAVED errors
+            if record.errors_saved:
+                saved_node = issues.add("[yellow]SAVED state[/yellow]")
+                saved_node.expand()
+                for err in record.errors_saved:
+                    saved_node.add(f"[red]{err}[/red]")
+            # Show DEPLOYED errors
+            if record.errors_deployed:
+                deployed_node = issues.add("[green]DEPLOYED state[/green]")
+                deployed_node.expand()
+                for err in record.errors_deployed:
+                    deployed_node.add(f"[red]{err}[/red]")
+        else:
+            # States are same, show as single list (already sorted by code)
+            for err in record.errors_deployed or record.errors_saved:
+                issues.add(f"[red]{err}[/red]")
+
+    # ── Published Interfaces ─────────────────────────────────────────────────
+    publishes = list(set(record.publishes_saved + record.publishes_deployed))
+    if publishes:
+        pub = tree.root.add(f"Published Interfaces ({len(publishes)})")
+        if is_ok:
+            pub.expand()
+        for p in sorted(publishes):
+            pub.add(p)
+
+    # ── Dependencies ─────────────────────────────────────────────────────────
+    all_deps = record.clean_deps_saved + record.clean_deps_deployed
+    all_emps = record.interface_employments_saved + record.interface_employments_deployed
+    n_deps = len(set(all_deps)) + len(set(all_emps))
+    if n_deps > 0:
+        dep = tree.root.add(f"Dependencies ({n_deps})")
+        if is_ok:
+            dep.expand()
+        for d in sorted(set(all_deps)):
+            dep.add(d)
+        for ctx, sig in sorted(set(all_emps)):
+            emp = dep.add(f"[dim]via[/dim] {ctx}")
+            emp.add(sig)
+
+    # ── Used By ──────────────────────────────────────────────────────────────
+    used_by = list(set(record.used_by_saved + record.used_by_deployed))
+    if used_by:
+        used = tree.root.add(f"Used By ({len(used_by)})")
+        if is_ok:
+            used.expand()
+        for u in sorted(used_by):
+            used.add(u)
 
 
 class DeploymentContextRecord:
@@ -90,9 +192,27 @@ class DetailsScreen(ModalScreen[None]):
 
 class WorkspaceDetailsScreen(ModalScreen[None]):
     CSS = """
-    #workspace-summary-table { width: 36; }
-    #workspace-content-items-table { width: 68; }
-    #workspace-deployment-tree { min-width: 72; }
+    WorkspaceDetailsScreen {
+        layout: vertical;
+    }
+    #ws-top-row {
+        height: 1fr;
+    }
+    #ws-bottom-row {
+        height: 2fr;
+    }
+    #ws-top-summary-panel {
+        width: 30%;
+    }
+    #ws-top-deps-panel {
+        width: 70%;
+    }
+    #ws-bottom-items-panel {
+        width: 35%;
+    }
+    #ws-bottom-detail-panel {
+        width: 65%;
+    }
     """
     BINDINGS = [
         ("slash", "focus_filter", "Filter"),
@@ -118,19 +238,19 @@ class WorkspaceDetailsScreen(ModalScreen[None]):
 
     def compose(self) -> ComposeResult:
         yield Static(f"Workspace Details: {self.details.name}")
-        with Horizontal():
-            with Vertical():
+        with Horizontal(id="ws-top-row"):
+            with Vertical(id="ws-top-summary-panel"):
                 yield Static("Summary")
                 yield DataTable(id="workspace-summary-table")
-            with Vertical():
+            with Vertical(id="ws-top-deps-panel"):
                 yield Static("Runtime Context Dependencies")
                 yield Tree(workspace_context(self.details.name), id="workspace-dependencies-tree")
-        with Horizontal():
-            with Vertical():
+        with Horizontal(id="ws-bottom-row"):
+            with Vertical(id="ws-bottom-items-panel"):
                 yield Static("Content Items")
                 yield Input(placeholder="Filter items by type, name, or status", id="workspace-item-filter")
                 yield DataTable(id="workspace-content-items-table")
-            with Vertical():
+            with Vertical(id="ws-bottom-detail-panel"):
                 yield Static("Selected Item Deployment Details")
                 yield Static("Selected Item: -", id="workspace-selected-item")
                 yield Tree("Deployment Details", id="workspace-deployment-tree")
@@ -225,26 +345,7 @@ class WorkspaceDetailsScreen(ModalScreen[None]):
         self._fill_deployment_tree("#workspace-deployment-tree", record)
 
     def _fill_deployment_tree(self, selector: str, record, error: str | None = None) -> None:
-        tree = self.query_one(selector, Tree)
-        tree.clear()
-        tree.root.label = "Deployment Details"
-        tree.root.expand()
-        if error is not None:
-            tree.root.add(f"Error: {error}")
-            return
-        if record is None:
-            return
-        info = tree.root.add("Summary")
-        info.expand()
-        info.add(f"Type: {record.item_type}")
-        info.add(f"Name: {record.name}")
-        info.add(f"Runtime Context: {record.runtime_context}")
-        info.add(f"State: {record.state}")
-        for section, items in record.detail_sections:
-            branch = tree.root.add(section)
-            branch.expand()
-            for item in items:
-                branch.add(item)
+        _render_deployment_tree(self.query_one(selector, Tree), record, error)
 
     def _display_object_type(self, object_type: str) -> str:
         return {
@@ -308,9 +409,27 @@ class WorkspaceDetailsScreen(ModalScreen[None]):
 
 class ApplicationDetailsScreen(ModalScreen[None]):
     CSS = """
-    #application-summary-table { width: 36; }
-    #application-section-items-table { width: 68; }
-    #application-deployment-tree { min-width: 72; }
+    ApplicationDetailsScreen {
+        layout: vertical;
+    }
+    #app-top-row {
+        height: 1fr;
+    }
+    #app-bottom-row {
+        height: 2fr;
+    }
+    #app-top-summary-panel {
+        width: 30%;
+    }
+    #app-top-deps-panel {
+        width: 70%;
+    }
+    #app-bottom-items-panel {
+        width: 35%;
+    }
+    #app-bottom-detail-panel {
+        width: 65%;
+    }
     """
     BINDINGS = [
         ("slash", "focus_filter", "Filter"),
@@ -336,19 +455,19 @@ class ApplicationDetailsScreen(ModalScreen[None]):
 
     def compose(self) -> ComposeResult:
         yield Static(f"Application Details: {self.details.name} {self.details.version}")
-        with Horizontal():
-            with Vertical():
+        with Horizontal(id="app-top-row"):
+            with Vertical(id="app-top-summary-panel"):
                 yield Static("Summary")
                 yield DataTable(id="application-summary-table")
-            with Vertical():
+            with Vertical(id="app-top-deps-panel"):
                 yield Static("Runtime Context Dependencies")
                 yield Tree(application_context(self.details.name, self.details.version), id="application-dependencies-tree")
-        with Horizontal():
-            with Vertical():
+        with Horizontal(id="app-bottom-row"):
+            with Vertical(id="app-bottom-items-panel"):
                 yield Static("Content Items")
                 yield Input(placeholder="Filter items by type, name, or status", id="application-item-filter")
                 yield DataTable(id="application-section-items-table")
-            with Vertical():
+            with Vertical(id="app-bottom-detail-panel"):
                 yield Static("Selected Item Deployment Details")
                 yield Static("Selected Item: -", id="application-selected-item")
                 yield Tree("Deployment Details", id="application-deployment-tree")
@@ -452,26 +571,7 @@ class ApplicationDetailsScreen(ModalScreen[None]):
         self._fill_deployment_tree("#application-deployment-tree", record)
 
     def _fill_deployment_tree(self, selector: str, record, error: str | None = None) -> None:
-        tree = self.query_one(selector, Tree)
-        tree.clear()
-        tree.root.label = "Deployment Details"
-        tree.root.expand()
-        if error is not None:
-            tree.root.add(f"Error: {error}")
-            return
-        if record is None:
-            return
-        info = tree.root.add("Summary")
-        info.expand()
-        info.add(f"Type: {record.item_type}")
-        info.add(f"Name: {record.name}")
-        info.add(f"Runtime Context: {record.runtime_context}")
-        info.add(f"State: {record.state}")
-        for section, items in record.detail_sections:
-            branch = tree.root.add(section)
-            branch.expand()
-            for item in items:
-                branch.add(item)
+        _render_deployment_tree(self.query_one(selector, Tree), record, error)
 
     def _display_object_type(self, object_type: str) -> str:
         return {
@@ -561,6 +661,86 @@ class ObjectDependenciesScreen(ModalScreen[None]):
         self.dismiss()
 
 
+_XYNA_THEME = Theme(
+    name="xyna",
+    primary="#FABB00",
+    background="#000000",
+    surface="#0d0d0d",
+    panel="#1a1a1a",
+    foreground="#FFFFFF",
+    dark=True,
+)
+
+
+class KeybindingsScreen(ModalScreen[None]):
+    BINDINGS = [
+        Binding("escape", "close", "Close"),
+        Binding("q", "close", "Close"),
+        Binding("?", "close", "Close"),
+    ]
+    CSS = """
+    KeybindingsScreen {
+        align: center middle;
+    }
+    #keybindings-container {
+        width: 70;
+        height: auto;
+        max-height: 90%;
+        border: round #FABB00;
+        padding: 1 2;
+        background: #000000;
+    }
+    #keybindings-title {
+        text-align: center;
+        color: #FABB00;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    .kb-section-header {
+        color: #FABB00;
+        text-style: bold;
+        margin-top: 1;
+    }
+    """
+
+    def compose(self) -> ComposeResult:
+        with ScrollableContainer(id="keybindings-container"):
+            yield Static("Key Bindings", id="keybindings-title")
+            yield Static("[bold]Main Screen[/bold]", classes="kb-section-header")
+            yield Static(
+                "  r            Refresh data\n"
+                "  d            Show Dependency Tree\n"
+                "  i            Show Item Details\n"
+                "  o            Show Object Dependencies\n"
+                "  ?            Show this help\n"
+                "  ctrl+p       Command palette\n"
+                "  q            Quit"
+            )
+            yield Static("[bold]Workspace / Application Details[/bold]", classes="kb-section-header")
+            yield Static(
+                "  /            Focus filter input\n"
+                "  Enter        Select current item\n"
+                "  Tab          Next widget\n"
+                "  Shift+Tab    Previous widget\n"
+                "  Esc / q      Close screen"
+            )
+            yield Static("[bold]Dependency Tree / Object Dependencies[/bold]", classes="kb-section-header")
+            yield Static(
+                "  Arrow keys   Navigate tree\n"
+                "  Esc / q      Close screen"
+            )
+            yield Static("[bold]Object Selection[/bold]", classes="kb-section-header")
+            yield Static(
+                "  Arrow keys   Navigate list\n"
+                "  Enter        Confirm selection\n"
+                "  Esc / q      Cancel"
+            )
+            yield Static("\n[dim]Press Esc or q to close[/dim]")
+
+    def action_close(self) -> None:
+        self.dismiss()
+
+
 class ObjectSelectionScreen(ModalScreen[ObjectSelectionRecord | None]):
     BINDINGS = [
         ("enter", "choose", "Choose"),
@@ -605,16 +785,17 @@ class XynaTUIApplication(App[None]):
         dock: bottom;
         height: 1;
         background: $panel;
-        color: $text;
+        color: $foreground;
         padding: 0 1;
     }
     """
     BINDINGS = [
-        ("r", "refresh_data", "Refresh"),
-        ("d", "show_dependency_tree", "Dependency Tree"),
-        ("i", "show_selected_details", "Details"),
-        ("o", "show_object_dependencies", "Object Dependencies"),
-        ("q", "quit", "Quit"),
+        Binding("r", "refresh_data", "Refresh"),
+        Binding("d", "show_dependency_tree", "Dependency Tree"),
+        Binding("i", "show_selected_details", "Details"),
+        Binding("o", "show_object_dependencies", "Object Dependencies"),
+        Binding("?", "show_keybindings", "Help"),
+        Binding("q", "quit", "Quit"),
     ]
 
     def __init__(self, service: XynaService) -> None:
@@ -644,6 +825,8 @@ class XynaTUIApplication(App[None]):
         yield Static(id="status-bar")
 
     def on_mount(self) -> None:
+        self.register_theme(_XYNA_THEME)
+        self.theme = "xyna"
         self.action_refresh_data()
         self._update_status_bar()
 
@@ -856,6 +1039,9 @@ class XynaTUIApplication(App[None]):
 
         self.notify("Open Workspaces or Applications to view object dependencies", severity="information")
 
+    def action_show_keybindings(self) -> None:
+        self.push_screen(KeybindingsScreen())
+
     def _show_object_dependencies_for_workspace(
         self,
         workspace_name: str,
@@ -925,7 +1111,7 @@ class XynaTUIApplication(App[None]):
 
 def build_app(repo_root: Path | None = None, use_mock: bool | None = None) -> XynaTUIApplication:
     root = repo_root or repo_root_from_here()
-    should_mock = use_mock if use_mock is not None else os.getenv("XYNA_TUI_USE_MOCK", "1") != "0"
+    should_mock = use_mock if use_mock is not None else os.getenv("XYNA_TUI_USE_MOCK", "0") != "0"
     if should_mock:
         gateway = MockXynaGateway.from_repo_root(root)
     else:
@@ -938,7 +1124,7 @@ def build_app(repo_root: Path | None = None, use_mock: bool | None = None) -> Xy
 
 
 def run() -> None:
-    build_app().run()
+    build_app(use_mock=False).run()
 
 
 if __name__ == "__main__":

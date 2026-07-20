@@ -22,7 +22,7 @@ def _assert_screenshot(app, output_dir: Path, name: str) -> Path:
 
 @pytest.mark.asyncio
 async def test_app_loads_mock_data() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -41,7 +41,7 @@ async def test_app_loads_mock_data() -> None:
 
 @pytest.mark.asyncio
 async def test_refresh_action_keeps_data_loaded() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -61,7 +61,7 @@ async def test_refresh_action_keeps_data_loaded() -> None:
 
 @pytest.mark.asyncio
 async def test_dependency_tree_popup_from_workspace_and_application() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -85,7 +85,7 @@ async def test_dependency_tree_popup_from_workspace_and_application() -> None:
 
 @pytest.mark.asyncio
 async def test_details_popup_from_workspace_and_application() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -129,7 +129,7 @@ async def test_details_popup_from_workspace_and_application() -> None:
 
 @pytest.mark.asyncio
 async def test_details_tab_focus_switching() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -157,7 +157,7 @@ async def test_details_tab_focus_switching() -> None:
 
 @pytest.mark.asyncio
 async def test_enter_selects_item_in_details_view() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -186,7 +186,7 @@ async def test_enter_selects_item_in_details_view() -> None:
 
 @pytest.mark.asyncio
 async def test_item_filter_reduces_application_item_list() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -215,7 +215,7 @@ async def test_item_filter_reduces_application_item_list() -> None:
 
 @pytest.mark.asyncio
 async def test_workspace_item_filter_is_focusable_and_filters() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -243,7 +243,7 @@ async def test_workspace_item_filter_is_focusable_and_filters() -> None:
 
 @pytest.mark.asyncio
 async def test_workspace_item_cursor_moves_to_deeper_visible_rows() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -265,7 +265,7 @@ async def test_workspace_item_cursor_moves_to_deeper_visible_rows() -> None:
 
 @pytest.mark.asyncio
 async def test_object_dependencies_popup_from_workspace_and_application() -> None:
-    app = build_app(repo_root_from_here())
+    app = build_app(repo_root_from_here(), use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -295,7 +295,7 @@ async def test_object_dependencies_popup_from_workspace_and_application() -> Non
 async def test_capture_view_screenshots() -> None:
     root = repo_root_from_here()
     output_dir = root / "test-results" / "screenshots"
-    app = build_app(root)
+    app = build_app(root, use_mock=True)
 
     async with app.run_test() as pilot:
         await pilot.pause()

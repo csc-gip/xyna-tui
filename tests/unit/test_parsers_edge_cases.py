@@ -51,6 +51,16 @@ def test_parse_deployment_item_partial_fields() -> None:
     assert item.runtime_context == ""
     assert item.detail_rows == []
     assert item.detail_sections == []
+    assert item.errors_saved == []
+    assert item.errors_deployed == []
+    assert item.publishes_saved == []
+    assert item.publishes_deployed == []
+    assert item.clean_deps_saved == []
+    assert item.clean_deps_deployed == []
+    assert item.interface_employments_saved == []
+    assert item.interface_employments_deployed == []
+    assert item.used_by_saved == []
+    assert item.used_by_deployed == []
 
 
 def test_parse_deployment_item_verbose_sections() -> None:
@@ -70,6 +80,55 @@ def test_parse_deployment_item_verbose_sections() -> None:
         "Interfaces abc.Def publishes in DEPLOYED state",
         ["WORKFLOW abc.Def"],
     )]
+    assert item.publishes_deployed == ["WORKFLOW abc.Def"]
+    assert item.publishes_saved == []
+    assert item.errors_deployed == []
+    assert item.errors_saved == []
+
+
+def test_parse_deployment_item_invalid_with_errors() -> None:
+    raw = (
+        "Type                : Workflow\n"
+        "Name                : a.b.Wf\n"
+        "RuntimeContext      : Workspace 'ws'\n"
+        "State               : INVALID\n\n"
+        "Interfaces a.b.Wf publishes in SAVED state:\n"
+        "  - WORKFLOW a.b.Wf\n\n"
+        "Interfaces a.b.Wf publishes in DEPLOYED state:\n"
+        "  - WORKFLOW a.b.Wf\n\n"
+        "Interfaces a.b.Wf uses in SAVED state:\n"
+        "  - (7913) a.b.X must be of type UNKNOWN String\n"
+        "  - DATATYPE a.b.Dep\n"
+        "  - InterfaceEmployment in DATATYPE x.Param:\n"
+        "    UNKNOWN boolean force\n\n"
+        "Interfaces a.b.Wf uses in DEPLOYED state:\n"
+        "  - (7913) a.b.X must be of type UNKNOWN String\n"
+        "  - DATATYPE a.b.Dep\n"
+        "  - InterfaceEmployment in DATATYPE x.Param:\n"
+        "    UNKNOWN boolean force\n\n"
+        "Objects that use a.b.Wf in SAVED state:\n"
+        "  - a.b.Caller\n\n"
+        "Objects that use a.b.Wf in DEPLOYED state:\n"
+        "  - a.b.Caller\n"
+    )
+    item = parse_deployment_item(raw)
+
+    assert item.state == "INVALID"
+    # errors sorted by code number (7913 < 14716 etc)
+    assert item.errors_saved == ["(7913) a.b.X must be of type UNKNOWN String"]
+    assert item.errors_deployed == ["(7913) a.b.X must be of type UNKNOWN String"]
+    # publishes identical in both states
+    assert item.publishes_saved == ["WORKFLOW a.b.Wf"]
+    assert item.publishes_deployed == ["WORKFLOW a.b.Wf"]
+    # clean deps identical in both states
+    assert item.clean_deps_saved == ["DATATYPE a.b.Dep"]
+    assert item.clean_deps_deployed == ["DATATYPE a.b.Dep"]
+    # employment identical in both states — context is the type name
+    assert item.interface_employments_saved == [("x.Param", "UNKNOWN boolean force")]
+    assert item.interface_employments_deployed == [("x.Param", "UNKNOWN boolean force")]
+    # used_by identical in both states
+    assert item.used_by_saved == ["a.b.Caller"]
+    assert item.used_by_deployed == ["a.b.Caller"]
 
 
 def test_parse_trigger_and_filter_table_first_block_only() -> None:

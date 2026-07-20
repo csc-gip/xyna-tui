@@ -43,6 +43,18 @@ class DeploymentItemRecord:
     name: str
     runtime_context: str
     state: str
+    # Structured fields — tracked per state to detect differences
+    errors_saved: list[str]                      # error items in SAVED state, sorted by code
+    errors_deployed: list[str]                   # error items in DEPLOYED state, sorted by code
+    publishes_saved: list[str]
+    publishes_deployed: list[str]
+    clean_deps_saved: list[str]
+    clean_deps_deployed: list[str]
+    interface_employments_saved: list[tuple[str, str]]
+    interface_employments_deployed: list[tuple[str, str]]
+    used_by_saved: list[str]
+    used_by_deployed: list[str]
+    # Legacy flat fields (kept for backward compatibility)
     detail_rows: list[tuple[str, str]]
     detail_sections: list[tuple[str, list[str]]]
 

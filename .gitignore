@@ -14,3 +14,6 @@ dist/
 *.egg-info/
 
 test-results/screenshots/
+
+# Local scratch area for ad-hoc scripts/outputs
+scratch/

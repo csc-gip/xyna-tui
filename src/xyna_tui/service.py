@@ -99,12 +99,7 @@ class XynaService:
         raw = self.gateway.execute(cmd)
         details = parse_application_details(raw)
         details.dependencies = self._runtime_dependencies_for_application(application_name, version)
-        content = self.content_by_type(application_name=application_name, version=version)
-        for obj_type, names in content.items():
-            if not names:
-                continue
-            details.section_items[obj_type] = names
-            details.sections[obj_type] = len(names)
+        # section_items are already populated by parse_application_details
         return details
 
     def workflows(
@@ -177,42 +172,46 @@ class XynaService:
         application_name: str | None = None,
         version: str | None = None,
     ) -> dict[str, list[str]]:
-        workflows = self.workflows(
-            workspace_name=workspace_name,
-            application_name=application_name,
-            version=version,
-        )
-        datatypes = self.datatypes(
-            workspace_name=workspace_name,
-            application_name=application_name,
-            version=version,
-        )
-        exceptions = self.exceptions(
-            workspace_name=workspace_name,
-            application_name=application_name,
-            version=version,
-        )
-
-        app_ctx = None
-        if application_name and version and version != "-":
-            app_ctx = f"Application '{application_name}', Version '{version}'"
-
-        trigger_names: list[str] = []
-        filter_names: list[str] = []
-        if app_ctx:
-            trigger_names = sorted(
-                {t.trigger for t in self.triggers() if t.runtime_context == app_ctx}
-            )
-            filter_names = sorted(
-                {f.filter_name for f in self.filters() if f.runtime_context == app_ctx}
-            )
+        # If we have an application context, use listapplicationdetails which already includes content
+        if application_name:
+            quoted_name = application_name.replace('"', '\\"')
+            cmd = f'listapplicationdetails -applicationName "{quoted_name}"'
+            if version and version != "-":
+                quoted_version = version.replace('"', '\\"')
+                cmd += f' -versionName "{quoted_version}"'
+            raw = self.gateway.execute(cmd)
+            details = parse_application_details(raw)
+            result: dict[str, list[str]] = dict(details.section_items)
+            
+            # Add trigger and filter names if we have a full version context
+            app_ctx = None
+            if version and version != "-":
+                app_ctx = f"Application '{application_name}', Version '{version}'"
+            
+            if app_ctx:
+                trigger_names = sorted(
+                    {t.trigger for t in self.triggers() if t.runtime_context == app_ctx}
+                )
+                filter_names = sorted(
+                    {f.filter_name for f in self.filters() if f.runtime_context == app_ctx}
+                )
+                result["TRIGGER"] = trigger_names
+                result["FILTER"] = filter_names
+            
+            return result
+        
+        # For workspace scope, use individual list commands since listworkspacedetails
+        # doesn't include the full content list
+        workflows = self.workflows(workspace_name=workspace_name)
+        datatypes = self.datatypes(workspace_name=workspace_name)
+        exceptions = self.exceptions(workspace_name=workspace_name)
 
         return {
             "WORKFLOW": workflows,
             "DATATYPE": datatypes,
             "EXCEPTION": exceptions,
-            "TRIGGER": trigger_names,
-            "FILTER": filter_names,
+            "TRIGGER": [],
+            "FILTER": [],
         }
 
     def content_items(

@@ -141,7 +141,17 @@ def parse_runtime_dependencies(raw: str) -> list[DependencyRecord]:
 
 
 def parse_deployment_item(raw: str) -> DeploymentItemRecord:
-    fields = {}
+    # ── regex helpers ──────────────────────────────────────────────────────
+    _PUB_SEC = re.compile(r"^Interfaces .+ publishes in (SAVED|DEPLOYED) state:$")
+    _USE_SEC = re.compile(r"^Interfaces .+ uses in (SAVED|DEPLOYED) state:$")
+    _UBY_SEC = re.compile(r"^Objects that use .+ in (SAVED|DEPLOYED) state:$")
+    _ERROR = re.compile(r"^\(\d+\)\s+.+")
+    _ERROR_CODE = re.compile(r"^\((\d+)\)")
+    _DEP = re.compile(r"^(DATATYPE|WORKFLOW|EXCEPTION)\s+(\S+)")
+    _EMP = re.compile(r"^InterfaceEmployment in (?:DATATYPE|WORKFLOW|EXCEPTION)\s+(\S+):$")
+
+    # ── legacy state ───────────────────────────────────────────────────────
+    fields: dict[str, str] = {}
     detail_rows: list[tuple[str, str]] = []
     detail_sections: list[tuple[str, list[str]]] = []
     current_section = "General"
@@ -150,35 +160,126 @@ def parse_deployment_item(raw: str) -> DeploymentItemRecord:
     def flush_section() -> None:
         nonlocal current_items
         if current_section != "General" and current_items:
-            detail_sections.append((current_section, current_items))
+            detail_sections.append((current_section, list(current_items)))
             current_items = []
+
+    # ── per-state structured state ─────────────────────────────────────────
+    errors_by_state: dict[str, set[str]] = {"SAVED": set(), "DEPLOYED": set()}
+    deps_by_state: dict[str, set[str]] = {"SAVED": set(), "DEPLOYED": set()}
+    pub_by_state: dict[str, set[str]] = {"SAVED": set(), "DEPLOYED": set()}
+    emp_by_state: dict[str, set[tuple[str, str]]] = {"SAVED": set(), "DEPLOYED": set()}
+    uby_by_state: dict[str, set[str]] = {"SAVED": set(), "DEPLOYED": set()}
+
+    sec_type = "general"  # "publishes" | "uses" | "used_by"
+    sec_state = ""        # "SAVED" | "DEPLOYED"
+    pending_emp: str | None = None  # employment context awaiting signature line
+
+    def _sort_errors(error_set: set[str]) -> list[str]:
+        """Sort error strings by their error code (number in parentheses)."""
+        def sort_key(e: str) -> tuple[int, str]:
+            m = _ERROR_CODE.match(e)
+            code = int(m.group(1)) if m else 999999
+            return (code, e)
+        return sorted(error_set, key=sort_key)
 
     for line in raw.splitlines():
         stripped = line.strip()
         if not stripped:
+            pending_emp = None
             continue
-        if stripped.endswith(":") and not re.match(r"^[A-Za-z][A-Za-z0-9 ]*\s*:\s*.*$", stripped):
+
+        is_item = line.startswith("  - ")
+        is_cont = line.startswith("    ") and not line.startswith("  - ")
+
+        # ── Employment continuation (4-space indent, no dash) ──────────────
+        if pending_emp is not None and is_cont:
+            emp = (pending_emp, stripped)
+            emp_by_state[sec_state].add(emp)
+            current_items.append(f"  {stripped}")
+            detail_rows.append((current_section, stripped))
+            pending_emp = None
+            continue
+        if pending_emp is not None:
+            pending_emp = None
+
+        # ── Section headers (col-0, end with ":") ─────────────────────────
+        if not line[:1].isspace() and stripped.endswith(":"):
             flush_section()
             current_section = stripped[:-1]
+            m_pub = _PUB_SEC.match(stripped)
+            m_use = _USE_SEC.match(stripped)
+            m_uby = _UBY_SEC.match(stripped)
+            if m_pub:
+                sec_type = "publishes"
+                sec_state = m_pub.group(1)
+            elif m_use:
+                sec_type = "uses"
+                sec_state = m_use.group(1)
+            elif m_uby:
+                sec_type = "used_by"
+                sec_state = m_uby.group(1)
+            else:
+                sec_type = "general"
+                sec_state = ""
             continue
-        if ":" not in line:
-            if line.startswith("  "):
-                item = stripped.removeprefix("- ").strip()
-                detail_rows.append((current_section, item))
-                current_items.append(item)
+
+        # ── Header key-value pairs (col-0, contains ":") ──────────────────
+        if not line[:1].isspace() and ":" in line:
+            key, _, value = line.partition(":")
+            key, value = key.strip(), value.strip()
+            fields[key] = value
+            if key not in {"Type", "Name", "RuntimeContext", "State"}:
+                detail_rows.append((key, value))
+                if current_section != "General":
+                    current_items.append(f"{key}: {value}")
             continue
-        key, value = line.split(":", 1)
-        fields[key.strip()] = value.strip()
-        if key.strip() not in {"Type", "Name", "RuntimeContext", "State"}:
-            detail_rows.append((key.strip(), value.strip()))
-            if current_section != "General":
-                current_items.append(f"{key.strip()}: {value.strip()}")
+
+        # ── List items ("  - ...") ─────────────────────────────────────────
+        if is_item:
+            item = stripped[2:].strip()  # strip leading "- "
+            detail_rows.append((current_section, item))
+            current_items.append(item)
+
+            if sec_type == "publishes":
+                pub_by_state[sec_state].add(item)
+
+            elif sec_type == "uses":
+                if _ERROR.match(item):
+                    errors_by_state[sec_state].add(item)
+                elif _EMP.match(item):
+                    m = _EMP.match(item)
+                    pending_emp = m.group(1) if m else None
+                elif _DEP.match(item):
+                    m = _DEP.match(item)
+                    dep_key = f"{m.group(1)} {m.group(2)}" if m else item
+                    deps_by_state[sec_state].add(dep_key)
+
+            elif sec_type == "used_by":
+                uby_by_state[sec_state].add(item)
+            continue
+
+        # ── Bare non-indented text (edge cases) ────────────────────────────
+        if not line[:1].isspace() and ":" not in line:
+            detail_rows.append((current_section, stripped))
+            current_items.append(stripped)
+
     flush_section()
+    
     return DeploymentItemRecord(
         item_type=fields.get("Type", ""),
         name=fields.get("Name", ""),
         runtime_context=fields.get("RuntimeContext", ""),
         state=fields.get("State", ""),
+        errors_saved=_sort_errors(errors_by_state["SAVED"]),
+        errors_deployed=_sort_errors(errors_by_state["DEPLOYED"]),
+        publishes_saved=sorted(pub_by_state["SAVED"]),
+        publishes_deployed=sorted(pub_by_state["DEPLOYED"]),
+        clean_deps_saved=sorted(deps_by_state["SAVED"]),
+        clean_deps_deployed=sorted(deps_by_state["DEPLOYED"]),
+        interface_employments_saved=sorted(emp_by_state["SAVED"]),
+        interface_employments_deployed=sorted(emp_by_state["DEPLOYED"]),
+        used_by_saved=sorted(uby_by_state["SAVED"]),
+        used_by_deployed=sorted(uby_by_state["DEPLOYED"]),
         detail_rows=detail_rows,
         detail_sections=detail_sections,
     )
@@ -296,6 +397,69 @@ def parse_workspace_details(raw: str) -> WorkspaceDetailsRecord:
         requirements=requirements,
         content_by_type={},
     )
+
+
+def parse_problem_items(raw: str) -> list[ContentItemRecord]:
+    """Extract problematic deployment items from workspace/application details output.
+    
+    Looks for the "has problems:" section with items formatted as:
+      deployment item state
+        name: <name>
+        type: <type>
+        state: <DEPLOYED|SAVED|INVALID>
+    """
+    items: list[ContentItemRecord] = []
+    in_problems = False
+    current_item_name = ""
+    current_item_type = ""
+    current_item_state = ""
+    
+    for line in raw.splitlines():
+        stripped = line.strip()
+        
+        # Detect "has problems:" section
+        if stripped == "has problems:":
+            in_problems = True
+            continue
+        
+        if not in_problems:
+            continue
+        
+        # Stop if we hit a section that's not indented (end of problems)
+        if stripped and not line.startswith(" "):
+            break
+        
+        # Parse deployment item state blocks
+        if stripped == "deployment item state":
+            # Save previous item if any
+            if current_item_name and current_item_type and current_item_state:
+                items.append(ContentItemRecord(
+                    object_type=current_item_type,
+                    object_name=current_item_name,
+                    status=current_item_state,
+                ))
+            current_item_name = ""
+            current_item_type = ""
+            current_item_state = ""
+            continue
+        
+        # Extract fields
+        if stripped.startswith("name:"):
+            current_item_name = stripped.replace("name:", "").strip()
+        elif stripped.startswith("type:"):
+            current_item_type = stripped.replace("type:", "").strip()
+        elif stripped.startswith("state:"):
+            current_item_state = stripped.replace("state:", "").strip()
+    
+    # Don't forget the last item
+    if current_item_name and current_item_type and current_item_state:
+        items.append(ContentItemRecord(
+            object_type=current_item_type,
+            object_name=current_item_name,
+            status=current_item_state,
+        ))
+    
+    return items
 
 
 def parse_application_details(raw: str) -> ApplicationDetailsRecord:
