@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from textual.binding import Binding
 from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
 
 from xyna_tui.app import build_app
@@ -27,7 +28,7 @@ async def test_app_loads_mock_data() -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
 
-        dashboard = app.query_one("#dashboard-summary", Static)
+        dashboard = app.query_one("#dashboard-metrics", Static)
         assert "UP_AND_RUNNING" in str(dashboard.render())
 
         workspaces = app.query_one("#workspaces-table", DataTable)
@@ -324,5 +325,110 @@ async def test_capture_view_screenshots() -> None:
         await pilot.pause()
         dependency_tree = _assert_screenshot(app, output_dir, "application-dependency-tree")
         assert dependency_tree.name == "application-dependency-tree.svg"
+
+
+def test_workspace_action_keybindings_are_registered() -> None:
+    app = build_app(repo_root_from_here(), use_mock=True)
+    bindings = {binding.key: binding.action for binding in app.BINDINGS if isinstance(binding, Binding)}
+
+    assert bindings["ctrl+p"] == "command_palette"
+    assert bindings["ctrl+shift+p"] == "command_palette"
+    assert bindings["f1"] == "command_palette"
+    assert bindings["n"] == "workspace_create"
+    assert bindings["c"] == "workspace_clear"
+    assert bindings["delete"] == "workspace_remove"
+
+
+@pytest.mark.asyncio
+async def test_workspace_actions_call_service_methods() -> None:
+    app = build_app(repo_root_from_here(), use_mock=True)
+
+    calls: dict[str, str] = {}
+    refresh_count = 0
+    selected_workspace_name = ""
+
+    def _fake_create_workspace(name: str) -> None:
+        calls["create"] = name
+
+    def _fake_clear_workspace(name: str) -> None:
+        calls["clear"] = name
+
+    def _fake_remove_workspace(name: str) -> None:
+        calls["remove"] = name
+
+    def _fake_refresh_data() -> None:
+        nonlocal refresh_count
+        refresh_count += 1
+
+    def _fake_push_screen(screen, callback=None):  # type: ignore[no-untyped-def]
+        screen_id = type(screen).__name__
+        if screen_id == "WorkspaceNameScreen" and callback is not None:
+            callback("copilot e2e workspace")
+            return
+        if screen_id == "ConfirmScreen" and callback is not None:
+            callback(True)
+            return
+        if screen_id == "BusyCommandScreen":
+            return
+        return None
+
+    async with app.run_test() as pilot:
+        app.service.create_workspace = _fake_create_workspace  # type: ignore[method-assign]
+        app.service.clear_workspace = _fake_clear_workspace  # type: ignore[method-assign]
+        app.service.remove_workspace = _fake_remove_workspace  # type: ignore[method-assign]
+        app.action_refresh_data = _fake_refresh_data  # type: ignore[method-assign]
+        app.push_screen = _fake_push_screen  # type: ignore[method-assign]
+
+        await pilot.pause()
+        tabs = app.query_one(TabbedContent)
+        tabs.active = "workspaces"
+        await pilot.pause()
+
+        table = app.query_one("#workspaces-table", DataTable)
+        table.move_cursor(row=0, column=0)
+        selected_workspace_name = app._workspace_records[0].name
+
+        app.action_workspace_create()
+        app.action_workspace_clear()
+        app.action_workspace_remove()
+        await pilot.pause()
+
+    assert calls["create"] == "copilot e2e workspace"
+    assert calls["clear"] == selected_workspace_name
+    assert calls["remove"] == selected_workspace_name
+    assert refresh_count == 3
+
+
+@pytest.mark.asyncio
+async def test_workspace_create_modal_accepts_names_with_spaces() -> None:
+    app = build_app(repo_root_from_here(), use_mock=True)
+
+    calls: list[str] = []
+
+    def _fake_create_workspace(name: str) -> None:
+        calls.append(name)
+
+    def _fake_refresh_data() -> None:
+        return None
+
+    app.service.create_workspace = _fake_create_workspace  # type: ignore[method-assign]
+    app.action_refresh_data = _fake_refresh_data  # type: ignore[method-assign]
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        tabs = app.query_one(TabbedContent)
+        tabs.active = "workspaces"
+        await pilot.pause()
+
+        await pilot.press("n")
+        await pilot.pause()
+        assert app.screen.query_one("#workspace-name-input", Input).has_focus
+
+        await pilot.press("a", "l", "p", "h", "a", "space", "b", "e", "t", "a")
+        await pilot.pause()
+        await pilot.press("enter")
+        await pilot.pause()
+
+    assert calls == ["alpha beta"]
 
 

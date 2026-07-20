@@ -17,6 +17,12 @@ def test_encode_call_with_args() -> None:
     assert payload == b"set\x1d-key\x1ea\x1e-value\x1eb\x1e\x1d\x04"
 
 
+def test_encode_call_with_spaced_argument() -> None:
+    gw = TcpXynaGateway()
+    payload = gw._encode_call(["createworkspace", "-workspaceName", "alpha beta"])
+    assert payload == b"createworkspace\x1d-workspaceName\x1ealpha beta\x1e\x1d\x04"
+
+
 def test_split_response_with_status() -> None:
     gw = TcpXynaGateway()
     body, status = gw._split_response("out line\nENDOFSTREAM_SUCCESS")
@@ -41,6 +47,16 @@ def test_execute_success_uses_send_payload(monkeypatch: pytest.MonkeyPatch) -> N
     def fake_send(self: TcpXynaGateway, payload: bytes) -> str:
         assert payload.startswith(b"status")
         return "Status: up\nENDOFSTREAM_SUCCESS"
+
+    monkeypatch.setattr(TcpXynaGateway, "_send_payload", fake_send)
+    gw = TcpXynaGateway()
+    assert gw.execute("status") == "Status: up"
+
+
+def test_execute_accepts_status_prefix_variants(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fake_send(self: TcpXynaGateway, payload: bytes) -> str:
+        assert payload.startswith(b"status")
+        return "Status: up\nENDOFSTREAM_STATUS_UP_AND_RUNNING_SINCE_123"
 
     monkeypatch.setattr(TcpXynaGateway, "_send_payload", fake_send)
     gw = TcpXynaGateway()

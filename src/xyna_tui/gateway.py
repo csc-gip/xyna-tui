@@ -4,7 +4,7 @@ import shlex
 import socket
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 import re
 
 from .fixtures import extract_command_output, fixture_path, load_text
@@ -13,6 +13,9 @@ from .fixtures import extract_command_output, fixture_path, load_text
 class XynaGateway(Protocol):
     def execute(self, command: str) -> str:
         """Execute command and return raw output (without status token)."""
+
+    def execute_stream(self, command: str, on_chunk: Callable[[str], None]) -> str:
+        """Execute command and push chunked output as it arrives."""
 
 
 @dataclass(slots=True)
@@ -25,6 +28,13 @@ class TcpXynaGateway:
     _record_sep: bytes = b"\x1e"
     _eot: bytes = b"\x04"
 
+    def _is_success_status(self, status: str) -> bool:
+        return status in {
+            "ENDOFSTREAM_SUCCESS",
+            "ENDOFSTREAM_SILENT",
+            "ENDOFSTREAM_SUCCESS_BUT_NO_CHANGE",
+        } or status.startswith("ENDOFSTREAM_STATUS_UP_AND_RUNNING")
+
     def execute(self, command: str) -> str:
         tokens = shlex.split(command)
         if not tokens:
@@ -34,12 +44,20 @@ class TcpXynaGateway:
         response = self._send_payload(payload)
         body, status = self._split_response(response)
 
-        if status in {
-            "ENDOFSTREAM_SUCCESS",
-            "ENDOFSTREAM_SILENT",
-            "ENDOFSTREAM_SUCCESS_BUT_NO_CHANGE",
-            "ENDOFSTREAM_STATUS_UP_AND_RUNNING",
-        }:
+        if self._is_success_status(status):
+            return body.strip()
+        raise RuntimeError(f"Xyna command failed: {status or 'UNKNOWN_STATUS'}")
+
+    def execute_stream(self, command: str, on_chunk: Callable[[str], None]) -> str:
+        tokens = shlex.split(command)
+        if not tokens:
+            raise ValueError("Command must not be empty")
+
+        payload = self._encode_call(tokens)
+        response = self._send_payload(payload, on_chunk=on_chunk)
+        body, status = self._split_response(response)
+
+        if self._is_success_status(status):
             return body.strip()
         raise RuntimeError(f"Xyna command failed: {status or 'UNKNOWN_STATUS'}")
 
@@ -53,7 +71,7 @@ class TcpXynaGateway:
         payload += self._group_sep + self._eot
         return payload
 
-    def _send_payload(self, payload: bytes) -> str:
+    def _send_payload(self, payload: bytes, on_chunk: Callable[[str], None] | None = None) -> str:
         chunks: list[bytes] = []
         with socket.create_connection((self.host, self.port), timeout=self.timeout_seconds) as sock:
             sock.settimeout(self.timeout_seconds)
@@ -65,8 +83,12 @@ class TcpXynaGateway:
                 if self._eot in chunk:
                     before_eot, _, _ = chunk.partition(self._eot)
                     chunks.append(before_eot)
+                    if on_chunk and before_eot:
+                        on_chunk(before_eot.decode("utf-8", errors="replace"))
                     break
                 chunks.append(chunk)
+                if on_chunk:
+                    on_chunk(chunk.decode("utf-8", errors="replace"))
         return b"".join(chunks).decode("utf-8", errors="replace")
 
     def _split_response(self, text: str) -> tuple[str, str]:
@@ -168,6 +190,18 @@ class MockXynaGateway:
 
     def execute(self, command: str) -> str:
         if command not in self._fixtures:
+            if command.startswith("refreshworkspace"):
+                return "Workspace refreshed"
+            if command.startswith("createworkspace"):
+                return "Workspace created"
+            if command.startswith("clearworkspace"):
+                return "Workspace cleared"
+            if command.startswith("removeworkspace"):
+                return "Workspace removed"
+            if command.startswith("startapplication"):
+                return "Application started"
+            if command.startswith("stopapplication"):
+                return "Application stopped"
             if command.startswith("showdeploymentitemdetails"):
                 is_verbose = " -v" in command or command.endswith(" -v")
                 ws_match = re.search(r'-workspaceName\s+"([^"]+)"', command)
@@ -200,3 +234,9 @@ class MockXynaGateway:
                 return "\n".join(lines)
             raise KeyError(f"No mock fixture for command: {command}")
         return self._fixtures[command]
+
+    def execute_stream(self, command: str, on_chunk: Callable[[str], None]) -> str:
+        output = self.execute(command)
+        if output:
+            on_chunk(output)
+        return output

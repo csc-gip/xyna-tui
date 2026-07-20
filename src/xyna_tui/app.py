@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+from datetime import datetime
 import os
+from queue import Empty, Queue
 from pathlib import Path
 
 from textual.app import App, ComposeResult
@@ -151,7 +154,10 @@ class DependencyTreeScreen(ModalScreen[None]):
         color: #ffffff;
     }
     """
-    BINDINGS = [("escape", "close", "Close"), ("q", "close", "Close")]
+    BINDINGS = [
+        Binding("escape", "close", "Close", priority=True),
+        Binding("q", "close", "Close", priority=True),
+    ]
 
     def __init__(self, root_context: str, dependency_records: list[DependencyRecord]) -> None:
         super().__init__()
@@ -186,16 +192,6 @@ class DependencyTreeScreen(ModalScreen[None]):
 
 class DetailsScreen(ModalScreen[None]):
     BINDINGS = [("escape", "close", "Close"), ("q", "close", "Close")]
-
-    def __init__(self, title: str, body: str) -> None:
-        super().__init__()
-        self._title = title
-        self._body = body
-
-    def compose(self) -> ComposeResult:
-        yield Static(self._title)
-        yield Static(self._body, id="details-body")
-        yield Static("Press Esc or q to close")
 
     def action_close(self) -> None:
         self.dismiss()
@@ -779,11 +775,19 @@ class KeybindingsScreen(ModalScreen[None]):
             yield Static("[bold]Main Screen[/bold]", classes="kb-section-header")
             yield Static(
                 "  r            Refresh data\n"
+                "  x            Workspace: refresh | Application: start/stop\n"
+                "  Shift+X/X    Workspace: refresh and deploy\n"
+                "  Ctrl+X       Workspace: refresh and deploy (fallback)\n"
+                "  Ctrl+P       Command palette\n"
+                "  Ctrl+Shift+P Command palette (fallback)\n"
+                "  F1           Command palette (fallback)\n"
+                "  n            Workspace: create\n"
+                "  c            Workspace: clear\n"
+                "  Delete       Workspace: remove\n"
                 "  d            Show Dependency Tree\n"
                 "  i            Show Item Details\n"
                 "  o            Show Object Dependencies\n"
                 "  ?            Show this help\n"
-                "  ctrl+p       Command palette\n"
                 "  q            Quit"
             )
             yield Static("[bold]Workspace / Application Details[/bold]", classes="kb-section-header")
@@ -809,6 +813,278 @@ class KeybindingsScreen(ModalScreen[None]):
 
     def action_close(self) -> None:
         self.dismiss()
+
+
+class StreamingCommandScreen(ModalScreen[None]):
+    CSS = """
+    StreamingCommandScreen {
+        background: #0f1419 85%;
+        align: center middle;
+    }
+    #stream-panel {
+        width: 100;
+        height: 28;
+        max-height: 90%;
+        border: round $primary;
+        background: #0f1419;
+        color: #ffffff;
+        padding: 0 1;
+    }
+    #stream-title {
+        color: $primary;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    #stream-output-container {
+        height: 1fr;
+        border: heavy #2a333d;
+        margin-bottom: 1;
+        background: #11161c;
+    }
+    #stream-output {
+        color: #ffffff;
+    }
+    #stream-status {
+        color: #ffffff;
+    }
+    """
+    BINDINGS = [
+        ("escape", "close", "Close"),
+        ("q", "close", "Close"),
+        ("c", "copy_output", "Copy Output"),
+        ("s", "save_output", "Save Output"),
+    ]
+
+    def __init__(self, title: str) -> None:
+        super().__init__()
+        self.title = title
+        self._chunks: Queue[str] = Queue()
+        self._buffer = ""
+        self._done = False
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="stream-panel"):
+            yield Static(self.title, id="stream-title")
+            with ScrollableContainer(id="stream-output-container"):
+                yield Static("", id="stream-output")
+            yield Static("Running...", id="stream-status")
+            yield Static("c: copy output  |  s: save output  |  Esc/q: close")
+
+    def on_mount(self) -> None:
+        self.set_interval(0.1, self._drain_chunks)
+
+    def enqueue_chunk(self, chunk: str) -> None:
+        if chunk:
+            self._chunks.put(chunk)
+
+    def mark_done(self, success: bool, message: str) -> None:
+        self._drain_chunks()
+        color = "green" if success else "red"
+        self.query_one("#stream-status", Static).update(
+            f"[{color}]{message}[/{color}]  Press Esc/q to close"
+        )
+        self._done = True
+
+    def _drain_chunks(self) -> None:
+        updated = False
+        while True:
+            try:
+                chunk = self._chunks.get_nowait()
+            except Empty:
+                break
+            normalized = chunk.replace("\r", "")
+            if normalized:
+                self._buffer += normalized
+                if not self._buffer.endswith("\n"):
+                    self._buffer += "\n"
+                updated = True
+        if updated:
+            self.query_one("#stream-output", Static).update(self._buffer.rstrip())
+            self.query_one("#stream-output-container", ScrollableContainer).scroll_end(animate=False)
+
+    def action_copy_output(self) -> None:
+        text = self._buffer.rstrip()
+        if not text:
+            self.notify("No output to copy", severity="warning")
+            return
+        copy_fn = getattr(self.app, "copy_to_clipboard", None)
+        if callable(copy_fn):
+            copy_fn(text)
+            self.notify("Output copied to clipboard", severity="information")
+            return
+        self.notify("Clipboard copy is not available in this environment", severity="warning")
+
+    def action_save_output(self) -> None:
+        text = self._buffer.rstrip()
+        if not text:
+            self.notify("No output to save", severity="warning")
+            return
+        root = repo_root_from_here()
+        out_dir = root / "test-results" / "stream-logs"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+        file_path = out_dir / f"stream-{ts}.log"
+        file_path.write_text(text + "\n", encoding="utf-8")
+        self.notify(f"Saved output to {file_path}", severity="information")
+
+    def action_close(self) -> None:
+        self.dismiss()
+
+
+class BusyCommandScreen(ModalScreen[None]):
+    CSS = """
+    BusyCommandScreen {
+        background: #0f1419 85%;
+        align: center middle;
+    }
+    #busy-panel {
+        width: 54;
+        height: auto;
+        border: round $primary;
+        background: #0f1419;
+        color: #ffffff;
+        padding: 1 2;
+    }
+    #busy-title {
+        color: $primary;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    """
+    BINDINGS = [("escape", "close", "Close"), ("q", "close", "Close")]
+
+    def __init__(self, title: str) -> None:
+        super().__init__()
+        self.title = title
+        self._spinner = ["|", "/", "-", "\\"]
+        self._spinner_idx = 0
+        self._done = False
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="busy-panel"):
+            yield Static(self.title, id="busy-title")
+            yield Static("| Waiting for factory response...", id="busy-status")
+
+    def on_mount(self) -> None:
+        self.set_interval(0.12, self._tick)
+
+    def _tick(self) -> None:
+        if self._done:
+            return
+        self._spinner_idx = (self._spinner_idx + 1) % len(self._spinner)
+        frame = self._spinner[self._spinner_idx]
+        self.query_one("#busy-status", Static).update(f"{frame} Waiting for factory response...")
+
+    def mark_done(self, success: bool, message: str) -> None:
+        self._done = True
+        color = "green" if success else "red"
+        self.query_one("#busy-status", Static).update(
+            f"[{color}]{message}[/{color}]  Press Esc/q to close"
+        )
+
+    def action_close(self) -> None:
+        self.dismiss()
+
+
+class ConfirmScreen(ModalScreen[bool]):
+    CSS = """
+    ConfirmScreen {
+        background: #0f1419 85%;
+        align: center middle;
+    }
+    #confirm-panel {
+        width: 72;
+        max-width: 90%;
+        height: auto;
+        border: round $primary;
+        background: #0f1419;
+        color: #ffffff;
+        padding: 1 2;
+    }
+    #confirm-title {
+        color: $primary;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    """
+    BINDINGS = [
+        ("y", "confirm", "Yes"),
+        ("n", "cancel", "No"),
+        ("enter", "confirm", "Yes"),
+        ("escape", "cancel", "No"),
+        ("q", "cancel", "No"),
+    ]
+
+    def __init__(self, title: str, message: str) -> None:
+        super().__init__()
+        self.title = title
+        self.message = message
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="confirm-panel"):
+            yield Static(self.title, id="confirm-title")
+            yield Static(self.message)
+            yield Static("\nPress y/Enter to confirm, n/Esc to cancel")
+
+    def action_confirm(self) -> None:
+        self.dismiss(True)
+
+    def action_cancel(self) -> None:
+        self.dismiss(False)
+
+
+class WorkspaceNameScreen(ModalScreen[str | None]):
+    CSS = """
+    WorkspaceNameScreen {
+        background: #0f1419 85%;
+        align: center middle;
+    }
+    #workspace-name-panel {
+        width: 80;
+        max-width: 90%;
+        height: auto;
+        border: round $primary;
+        background: #0f1419;
+        color: #ffffff;
+        padding: 1 2;
+    }
+    #workspace-name-title {
+        color: $primary;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    #workspace-name-input {
+        margin-top: 1;
+    }
+    """
+    BINDINGS = [
+        Binding("enter", "submit", "Create", priority=True),
+        Binding("escape", "cancel", "Cancel", priority=True),
+        Binding("q", "cancel", "Cancel", priority=True),
+    ]
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="workspace-name-panel"):
+            yield Static("Create workspace", id="workspace-name-title")
+            yield Static("Enter workspace name:")
+            yield Input(placeholder="workspace name", id="workspace-name-input")
+            yield Static("Enter: create  |  Esc/q: cancel")
+
+    def on_mount(self) -> None:
+        self.query_one("#workspace-name-input", Input).focus()
+
+    def on_input_submitted(self, _event: Input.Submitted) -> None:
+        self.action_submit()
+
+    def action_submit(self) -> None:
+        value = self.query_one("#workspace-name-input", Input).value.strip()
+        if not value:
+            self.notify("Workspace name must not be empty", severity="warning")
+            return
+        self.dismiss(value)
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
 
 
 class ObjectSelectionScreen(ModalScreen[ObjectSelectionRecord | None]):
@@ -955,6 +1231,16 @@ class XynaTUIApplication(App[None]):
     """
     BINDINGS = [
         Binding("r", "refresh_data", "Refresh"),
+        Binding("ctrl+p", "command_palette", "Command Palette", priority=True),
+        Binding("ctrl+shift+p", "command_palette", "Command Palette", priority=True),
+        Binding("f1", "command_palette", "Command Palette", priority=True),
+        Binding("x", "execute_primary_action", "Execute Action"),
+        Binding("shift+x", "execute_secondary_action", "Execute Secondary Action"),
+        Binding("X", "execute_secondary_action", "Execute Secondary Action"),
+        Binding("ctrl+x", "execute_secondary_action", "Execute Secondary Action"),
+        Binding("n", "workspace_create", "Create Workspace"),
+        Binding("c", "workspace_clear", "Clear Workspace"),
+        Binding("delete", "workspace_remove", "Remove Workspace"),
         Binding("d", "show_dependency_tree", "Dependency Tree"),
         Binding("i", "show_selected_details", "Details"),
         Binding("o", "show_object_dependencies", "Object Dependencies"),
@@ -1008,8 +1294,8 @@ class XynaTUIApplication(App[None]):
         global_actions = "r Refresh | q Quit"
 
         tab_actions = {
-            "workspaces": "d Dependency Tree | i Details | o Object Dependencies",
-            "applications": "d Dependency Tree | i Details | o Object Dependencies",
+            "workspaces": "x Refresh | X Refresh and Deploy | n Create | c Clear | Del Remove | d Dependency Tree | i Details | o Object Dependencies",
+            "applications": "x Start/Stop Application | d Dependency Tree | i Details | o Object Dependencies",
             "dependencies": "Navigate tree with arrows",
             "dashboard": "",
             "properties": "",
@@ -1335,6 +1621,166 @@ class XynaTUIApplication(App[None]):
 
     def action_show_keybindings(self) -> None:
         self.push_screen(KeybindingsScreen())
+
+    async def action_execute_primary_action(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+
+        if tabbed.active == "workspaces":
+            await self._refresh_selected_workspace(with_dependencies=False)
+            return
+
+        if tabbed.active == "applications":
+            await self._toggle_selected_application()
+            return
+
+        self.notify("Primary action is available on Workspaces/Applications", severity="information")
+
+    async def action_execute_secondary_action(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+        if tabbed.active == "workspaces":
+            await self._refresh_selected_workspace(with_dependencies=True)
+            return
+        self.notify("Secondary action is available on Workspaces tab", severity="information")
+
+    def action_workspace_create(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+        if tabbed.active != "workspaces":
+            self.notify("Create workspace is available on Workspaces tab", severity="information")
+            return
+        self.push_screen(WorkspaceNameScreen(), self._on_workspace_create_name)
+
+    def action_workspace_clear(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+        if tabbed.active != "workspaces":
+            self.notify("Clear workspace is available on Workspaces tab", severity="information")
+            return
+        ws = self._selected_workspace_record()
+        if ws is None:
+            self.notify("No workspace selected", severity="warning")
+            return
+        self.push_screen(
+            ConfirmScreen(
+                "Clear workspace",
+                f"Clear workspace '{ws.name}'?\nThis removes triggers, filters and XMOM objects.",
+            ),
+            lambda confirmed: self._on_workspace_clear_confirmation(ws, confirmed),
+        )
+
+    def _on_workspace_create_name(self, name: str | None) -> None:
+        if not name:
+            return
+        asyncio.create_task(self._run_workspace_create(name))
+
+    async def _run_workspace_create(self, name: str) -> None:
+        modal = BusyCommandScreen(f"createworkspace {name}")
+        self.push_screen(modal)
+        try:
+            await asyncio.to_thread(self.service.create_workspace, name)
+            self.action_refresh_data()
+            modal.dismiss()
+        except Exception as exc:
+            modal.mark_done(False, f"Create workspace failed: {exc}")
+
+    def _on_workspace_clear_confirmation(self, ws: WorkspaceRecord, confirmed: bool) -> None:
+        if not confirmed:
+            return
+        asyncio.create_task(self._run_workspace_clear(ws))
+
+    async def _run_workspace_clear(self, ws: WorkspaceRecord) -> None:
+        modal = BusyCommandScreen(f"clearworkspace {ws.name}")
+        self.push_screen(modal)
+        try:
+            await asyncio.to_thread(self.service.clear_workspace, ws.name)
+            self.action_refresh_data()
+            modal.dismiss()
+        except Exception as exc:
+            modal.mark_done(False, f"Clear workspace failed: {exc}")
+
+    def action_workspace_remove(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+        if tabbed.active != "workspaces":
+            self.notify("Remove workspace is available on Workspaces tab", severity="information")
+            return
+        ws = self._selected_workspace_record()
+        if ws is None:
+            self.notify("No workspace selected", severity="warning")
+            return
+        self.push_screen(
+            ConfirmScreen(
+                "Remove workspace",
+                f"Remove workspace '{ws.name}'?\nThis operation cannot be undone.",
+            ),
+            lambda confirmed: self._on_workspace_remove_confirmation(ws, confirmed),
+        )
+
+    def _on_workspace_remove_confirmation(self, ws: WorkspaceRecord, confirmed: bool) -> None:
+        if not confirmed:
+            return
+        asyncio.create_task(self._run_workspace_remove(ws))
+
+    async def _run_workspace_remove(self, ws: WorkspaceRecord) -> None:
+        modal = BusyCommandScreen(f"removeworkspace {ws.name}")
+        self.push_screen(modal)
+        try:
+            await asyncio.to_thread(self.service.remove_workspace, ws.name)
+            self.action_refresh_data()
+            modal.dismiss()
+        except Exception as exc:
+            modal.mark_done(False, f"Remove workspace failed: {exc}")
+
+    async def _refresh_selected_workspace(self, with_dependencies: bool) -> None:
+        ws = self._selected_workspace_record()
+        if ws is None:
+            self.notify("No workspace selected", severity="warning")
+            return
+
+        title = f"Refresh workspace {ws.name}"
+        if with_dependencies:
+            title = f"Refresh and deploy workspace {ws.name}"
+        modal = StreamingCommandScreen(title)
+        self.push_screen(modal)
+        try:
+            await asyncio.to_thread(
+                self.service.refresh_workspace_stream,
+                ws.name,
+                with_dependencies,
+                modal.enqueue_chunk,
+            )
+            self.action_refresh_data()
+            modal.dismiss()
+        except Exception as exc:
+            modal.mark_done(False, f"Workspace refresh failed: {exc}")
+
+    async def _toggle_selected_application(self) -> None:
+        if not self._application_records:
+            self.notify("No application selected", severity="warning")
+            return
+        table = self.query_one("#applications-table", DataTable)
+        idx = table.cursor_row if table.cursor_row >= 0 else 0
+        idx = min(idx, len(self._application_records) - 1)
+        app = self._application_records[idx]
+
+        is_running = app.status.strip().upper() == "RUNNING"
+        action_name = "stopapplication" if is_running else "startapplication"
+        modal = BusyCommandScreen(f"{action_name} {app.name} {app.version}")
+        self.push_screen(modal)
+        try:
+            if is_running:
+                await asyncio.to_thread(self.service.stop_application, app.name, app.version)
+            else:
+                await asyncio.to_thread(self.service.start_application, app.name, app.version)
+            self.action_refresh_data()
+            modal.dismiss()
+        except Exception as exc:
+            modal.mark_done(False, f"Application action failed: {exc}")
+
+    def _selected_workspace_record(self) -> WorkspaceRecord | None:
+        if not self._workspace_records:
+            return None
+        table = self.query_one("#workspaces-table", DataTable)
+        idx = table.cursor_row if table.cursor_row >= 0 else 0
+        idx = min(idx, len(self._workspace_records) - 1)
+        return self._workspace_records[idx]
 
     def _show_object_dependencies_for_workspace(
         self,

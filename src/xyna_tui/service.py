@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import Callable
 
 from .gateway import XynaGateway
 from .models import (
@@ -422,3 +423,75 @@ class XynaService:
             cmd += " -r"
         raw = self.gateway.execute(cmd)
         return parse_printdependencies_tree_lines(raw)
+
+    def refresh_workspace(self, workspace_name: str, with_dependencies: bool = False) -> str:
+        cmd = self._refresh_workspace_command(workspace_name, with_dependencies)
+        return self.gateway.execute(cmd)
+
+    def refresh_workspace_stream(
+        self,
+        workspace_name: str,
+        with_dependencies: bool,
+        on_chunk: Callable[[str], None],
+    ) -> str:
+        cmd = self._refresh_workspace_command(workspace_name, with_dependencies)
+        execute_stream = getattr(self.gateway, "execute_stream", None)
+        if callable(execute_stream):
+            return execute_stream(cmd, on_chunk)
+        output = self.gateway.execute(cmd)
+        if output:
+            on_chunk(output)
+        return output
+
+    def _refresh_workspace_command(self, workspace_name: str, with_dependencies: bool) -> str:
+        quoted = workspace_name.replace('"', '\\"')
+        cmd = f'refreshworkspace -workspace "{quoted}"'
+        if with_dependencies:
+            cmd += " -d"
+        return cmd
+
+    def start_application(self, application_name: str, version: str) -> str:
+        quoted_name = application_name.replace('"', '\\"')
+        quoted_version = version.replace('"', '\\"')
+        cmd = (
+            f'startapplication -applicationName "{quoted_name}" '
+            f'-versionName "{quoted_version}"'
+        )
+        return self.gateway.execute(cmd)
+
+    def stop_application(self, application_name: str, version: str) -> str:
+        quoted_name = application_name.replace('"', '\\"')
+        quoted_version = version.replace('"', '\\"')
+        cmd = (
+            f'stopapplication -applicationName "{quoted_name}" '
+            f'-versionName "{quoted_version}"'
+        )
+        return self.gateway.execute(cmd)
+
+    def create_workspace(self, workspace_name: str, revision: str | None = None) -> str:
+        quoted = workspace_name.replace('"', '\\"')
+        cmd = f'createworkspace -workspaceName "{quoted}"'
+        if revision:
+            cmd += f' -revision "{revision.replace("\"", "\\\"")}"'
+        return self.gateway.execute(cmd)
+
+    def clear_workspace(self, workspace_name: str, force: bool = True) -> str:
+        quoted = workspace_name.replace('"', '\\"')
+        cmd = f'clearworkspace -workspaceName "{quoted}"'
+        if force:
+            cmd += " -f"
+        return self.gateway.execute(cmd)
+
+    def remove_workspace(
+        self,
+        workspace_name: str,
+        force: bool = True,
+        cleanup_xmls: bool = True,
+    ) -> str:
+        quoted = workspace_name.replace('"', '\\"')
+        cmd = f'removeworkspace -workspaceName "{quoted}"'
+        if force:
+            cmd += " -f"
+        if cleanup_xmls:
+            cmd += " -c"
+        return self.gateway.execute(cmd)
