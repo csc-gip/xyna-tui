@@ -5,7 +5,7 @@ from pathlib import Path
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, ScrollableContainer, Vertical
+from textual.containers import Grid, Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
 from textual.theme import Theme
 from textual.widgets import DataTable, Header, Input, Static, TabbedContent, TabPane, Tree
@@ -140,6 +140,17 @@ class DeploymentContextRecord:
 
 
 class DependencyTreeScreen(ModalScreen[None]):
+    CSS = """
+    DependencyTreeScreen {
+        background: #0f1419 85%;
+    }
+    #dependency-tree {
+        border: round $primary;
+        padding: 0 1;
+        background: #0f1419;
+        color: #ffffff;
+    }
+    """
     BINDINGS = [("escape", "close", "Close"), ("q", "close", "Close")]
 
     def __init__(self, root_context: str, dependency_records: list[DependencyRecord]) -> None:
@@ -194,9 +205,12 @@ class WorkspaceDetailsScreen(ModalScreen[None]):
     CSS = """
     WorkspaceDetailsScreen {
         layout: vertical;
+        background: #0f1419 85%;
+        color: #ffffff;
     }
     #ws-top-row {
         height: 1fr;
+        margin-bottom: 1;
     }
     #ws-bottom-row {
         height: 2fr;
@@ -212,6 +226,27 @@ class WorkspaceDetailsScreen(ModalScreen[None]):
     }
     #ws-bottom-detail-panel {
         width: 65%;
+    }
+    #ws-top-summary-panel,
+    #ws-top-deps-panel,
+    #ws-bottom-items-panel,
+    #ws-bottom-detail-panel {
+        border: round $primary;
+        background: #0f1419;
+        padding: 0 1;
+    }
+    #workspace-summary-table,
+    #workspace-content-items-table,
+    #workspace-deployment-tree,
+    #workspace-dependencies-tree {
+        color: #ffffff;
+        background: #11161c;
+    }
+    #workspace-item-filter {
+        margin-bottom: 1;
+        background: #11161c;
+        color: #ffffff;
+        border: tall $primary;
     }
     """
     BINDINGS = [
@@ -411,9 +446,12 @@ class ApplicationDetailsScreen(ModalScreen[None]):
     CSS = """
     ApplicationDetailsScreen {
         layout: vertical;
+        background: #0f1419 85%;
+        color: #ffffff;
     }
     #app-top-row {
         height: 1fr;
+        margin-bottom: 1;
     }
     #app-bottom-row {
         height: 2fr;
@@ -429,6 +467,27 @@ class ApplicationDetailsScreen(ModalScreen[None]):
     }
     #app-bottom-detail-panel {
         width: 65%;
+    }
+    #app-top-summary-panel,
+    #app-top-deps-panel,
+    #app-bottom-items-panel,
+    #app-bottom-detail-panel {
+        border: round $primary;
+        background: #0f1419;
+        padding: 0 1;
+    }
+    #application-summary-table,
+    #application-section-items-table,
+    #application-deployment-tree,
+    #application-dependencies-tree {
+        color: #ffffff;
+        background: #11161c;
+    }
+    #application-item-filter {
+        margin-bottom: 1;
+        background: #11161c;
+        color: #ffffff;
+        border: tall $primary;
     }
     """
     BINDINGS = [
@@ -634,6 +693,17 @@ class ApplicationDetailsScreen(ModalScreen[None]):
 
 
 class ObjectDependenciesScreen(ModalScreen[None]):
+    CSS = """
+    ObjectDependenciesScreen {
+        background: #0f1419 85%;
+    }
+    #object-dependency-tree {
+        border: round $primary;
+        padding: 0 1;
+        background: #0f1419;
+        color: #ffffff;
+    }
+    """
     BINDINGS = [("escape", "close", "Close"), ("q", "close", "Close")]
 
     def __init__(self, root_label: str, dependencies: list[tuple[int, str]]) -> None:
@@ -742,6 +812,17 @@ class KeybindingsScreen(ModalScreen[None]):
 
 
 class ObjectSelectionScreen(ModalScreen[ObjectSelectionRecord | None]):
+    CSS = """
+    ObjectSelectionScreen {
+        background: #0f1419 85%;
+    }
+    #object-selection-table {
+        border: round $primary;
+        background: #0f1419;
+        color: #ffffff;
+        padding: 0 1;
+    }
+    """
     BINDINGS = [
         ("enter", "choose", "Choose"),
         ("escape", "close", "Close"),
@@ -781,12 +862,95 @@ class XynaTUIApplication(App[None]):
     TITLE = "Xyna Factory TUI"
     SUB_TITLE = "Dashboard, workspace, application, and property management"
     CSS = """
+    Screen {
+        background: #11161c;
+        color: #ffffff;
+    }
+
+    Static {
+        color: #ffffff;
+    }
+
+    Header {
+        background: $primary;
+        color: $background;
+        text-style: bold;
+    }
+
+    TabbedContent {
+        background: #11161c;
+        color: #ffffff;
+    }
+
+    TabPane {
+        padding: 0;
+        background: #11161c;
+        color: #ffffff;
+    }
+
+    Tabs {
+        background: #0f1419;
+        color: #ffffff;
+    }
+
+    Tabs Tab {
+        color: #dfe7ef;
+        background: #1a232c;
+    }
+
+    Tabs Tab.-active {
+        background: $primary;
+        color: #000000;
+        text-style: bold;
+    }
     #status-bar {
         dock: bottom;
         height: 1;
         background: $panel;
         color: $foreground;
         padding: 0 1;
+    }
+    #dashboard-grid {
+        grid-size: 2;
+        grid-columns: 3fr 2fr;
+        grid-gutter: 1 2;
+        padding: 1;
+        height: 1fr;
+    }
+
+    .dashboard-panel {
+        border: round $primary;
+        background: #0f1419;
+        padding: 0 1;
+    }
+
+    .dashboard-title {
+        color: $primary;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+
+    #dashboard-metrics,
+    #dashboard-problems {
+        color: #ffffff;
+    }
+
+    DataTable {
+        color: #ffffff;
+        background: #11161c;
+        border: round $primary;
+    }
+
+    Tree {
+        color: #ffffff;
+        background: #11161c;
+        border: round $primary;
+    }
+
+    Input {
+        background: #11161c;
+        color: #ffffff;
+        border: tall $primary;
     }
     """
     BINDINGS = [
@@ -809,7 +973,13 @@ class XynaTUIApplication(App[None]):
         yield Header()
         with TabbedContent(initial="dashboard"):
             with TabPane("Dashboard", id="dashboard"):
-                yield Static(id="dashboard-summary")
+                with Grid(id="dashboard-grid"):
+                    with Vertical(classes="dashboard-panel"):
+                        yield Static("System Health", classes="dashboard-title")
+                        yield Static(id="dashboard-metrics")
+                    with Vertical(classes="dashboard-panel"):
+                        yield Static("Problem Radar", classes="dashboard-title")
+                        yield Static(id="dashboard-problems")
             with TabPane("Workspaces", id="workspaces"):
                 yield DataTable(id="workspaces-table")
             with TabPane("Applications", id="applications"):
@@ -854,18 +1024,6 @@ class XynaTUIApplication(App[None]):
 
     def action_refresh_data(self) -> None:
         dashboard = self.service.dashboard()
-        self.query_one("#dashboard-summary", Static).update(
-            "\n".join(
-                [
-                    f"Factory state: {dashboard.factory_state}",
-                    f"Uptime: {dashboard.uptime}",
-                    f"Server version: {dashboard.server_version}",
-                    f"XMOM version: {dashboard.xmom_version}",
-                    f"Operating system: {dashboard.os_info}",
-                ]
-            )
-        )
-
         self._workspace_records = self.service.workspaces()
         self._fill_table(
             "#workspaces-table",
@@ -886,16 +1044,152 @@ class XynaTUIApplication(App[None]):
         self._dependency_records = self.service.dependencies()
         self._fill_dependency_tree()
 
+        trigger_records = self.service.triggers()
         self._fill_table(
             "#triggers-table",
             ["trigger", "runtime_context", "status", "instances"],
-            self.service.triggers(),
+            trigger_records,
         )
+        filter_records = self.service.filters()
         self._fill_table(
             "#filters-table",
             ["filter_name", "runtime_context", "status", "instances"],
-            self.service.filters(),
+            filter_records,
         )
+
+        self._render_dashboard_summary(
+            dashboard,
+            self._workspace_records,
+            self._application_records,
+            trigger_records,
+            filter_records,
+        )
+
+    def _render_dashboard_summary(
+        self,
+        dashboard,
+        workspaces: list[WorkspaceRecord],
+        applications: list[ApplicationRecord],
+        triggers,
+        filters,
+    ) -> None:
+        host_mem_percent = self._memory_used_percent(dashboard.host_memory_free_kb, dashboard.host_memory_total_kb)
+        jvm_heap_percent = self._memory_used_percent(
+            free_value=None,
+            total_value=dashboard.jvm_heap_current_kb,
+            used_value=dashboard.jvm_heap_used_kb,
+        )
+
+        cpu_text = "n/a"
+        cpu_bar = self._ascii_meter(None)
+        if dashboard.cpu_usage_percent is not None:
+            cpu_text = f"{dashboard.cpu_usage_percent:.1f}%"
+            cpu_bar = self._ascii_meter(dashboard.cpu_usage_percent)
+
+        host_mem_text = "n/a"
+        host_mem_bar = self._ascii_meter(None)
+        if host_mem_percent is not None and dashboard.host_memory_total_kb is not None:
+            host_used = dashboard.host_memory_total_kb - (dashboard.host_memory_free_kb or 0)
+            host_mem_text = f"{host_used:,}/{dashboard.host_memory_total_kb:,} kB ({host_mem_percent:.1f}%)"
+            host_mem_bar = self._ascii_meter(host_mem_percent)
+
+        jvm_heap_text = "n/a"
+        jvm_heap_bar = self._ascii_meter(None)
+        if (
+            jvm_heap_percent is not None
+            and dashboard.jvm_heap_used_kb is not None
+            and dashboard.jvm_heap_current_kb is not None
+            and dashboard.jvm_heap_max_kb is not None
+        ):
+            jvm_heap_text = (
+                f"{dashboard.jvm_heap_used_kb:,}/{dashboard.jvm_heap_current_kb:,} kB "
+                f"({jvm_heap_percent:.1f}%), max {dashboard.jvm_heap_max_kb:,} kB"
+            )
+            jvm_heap_bar = self._ascii_meter(jvm_heap_percent)
+
+        metrics_lines = [
+            f"[bold]Factory state:[/bold] {dashboard.factory_state}",
+            f"[bold]Uptime:[/bold] {dashboard.uptime}",
+            f"[bold]Server version:[/bold] {dashboard.server_version}",
+            f"[bold]XMOM version:[/bold] {dashboard.xmom_version}",
+            f"[bold]Operating system:[/bold] {dashboard.os_info}",
+            "",
+            "[bold #FABB00]CPU usage[/bold #FABB00]",
+            f"  {cpu_bar} {cpu_text}",
+            "[bold #FABB00]Host memory used[/bold #FABB00]",
+            f"  {host_mem_bar} {host_mem_text}",
+            "[bold #FABB00]Java heap used[/bold #FABB00]",
+            f"  {jvm_heap_bar} {jvm_heap_text}",
+        ]
+        self.query_one("#dashboard-metrics", Static).update("\n".join(metrics_lines))
+
+        bad_workspaces = [
+            ws for ws in workspaces if ws.problems > 0 or self._is_problem_status(ws.status)
+        ]
+        bad_applications = [app for app in applications if self._is_problem_status(app.status)]
+        bad_triggers = [tr for tr in triggers if self._is_problem_status(tr.status)]
+        bad_filters = [fl for fl in filters if self._is_problem_status(fl.status)]
+
+        problem_lines = [
+            "[bold #FABB00]Problematic items[/bold #FABB00]",
+            self._format_problem_block(
+                "Workspaces",
+                [f"{ws.name} ({ws.status}, problems={ws.problems})" for ws in bad_workspaces],
+            ),
+            self._format_problem_block(
+                "Applications",
+                [f"{app.name} {app.version} ({app.status})" for app in bad_applications],
+            ),
+            self._format_problem_block(
+                "Triggers",
+                [f"{tr.trigger} ({tr.status})" for tr in bad_triggers],
+            ),
+            self._format_problem_block(
+                "Filters",
+                [f"{fl.filter_name} ({fl.status})" for fl in bad_filters],
+            ),
+        ]
+        self.query_one("#dashboard-problems", Static).update("\n\n".join(problem_lines))
+
+    def _ascii_meter(self, percent: float | None, width: int = 24) -> str:
+        if percent is None:
+            return "[" + (" " * width) + "]"
+        clamped = max(0.0, min(100.0, percent))
+        filled = int(round((clamped / 100.0) * width))
+        return "[" + ("#" * filled) + ("-" * (width - filled)) + "]"
+
+    def _memory_used_percent(
+        self,
+        free_value: int | None,
+        total_value: int | None,
+        used_value: int | None = None,
+    ) -> float | None:
+        if total_value is None or total_value <= 0:
+            return None
+        used = used_value
+        if used is None:
+            if free_value is None:
+                return None
+            used = total_value - free_value
+        return max(0.0, min(100.0, (used / total_value) * 100.0))
+
+    def _is_problem_status(self, status: str) -> bool:
+        text = status.strip().upper()
+        if not text:
+            return False
+        if text in {"RUNNING", "DEPLOYED", "UP_AND_RUNNING", "OK", "ACTIVE"}:
+            return False
+        return any(token in text for token in ("WARN", "INVALID", "ERROR", "FAIL", "PROBLEM"))
+
+    def _format_problem_block(self, title: str, entries: list[str], max_items: int = 8) -> str:
+        if not entries:
+            return f"[bold]{title}[/bold]: none"
+        clipped = entries[:max_items]
+        lines = [f"[bold]{title}[/bold] ({len(entries)}):"]
+        lines.extend(f"  - {entry}" for entry in clipped)
+        if len(entries) > max_items:
+            lines.append(f"  - ... and {len(entries) - max_items} more")
+        return "\n".join(lines)
 
     def _fill_table(self, selector: str, columns: list[str], records: list[object]) -> None:
         table = self.query_one(selector, DataTable)

@@ -63,3 +63,8 @@ def test_parse_dashboard_info() -> None:
 
     assert info.factory_state == "UP_AND_RUNNING"
     assert info.server_version == "10.8.0.0"
+    assert info.host_memory_free_kb == 20828780
+    assert info.host_memory_total_kb == 24613192
+    assert info.jvm_heap_used_kb == 315999
+    assert info.jvm_heap_current_kb == 462848
+    assert info.jvm_heap_max_kb == 6156288

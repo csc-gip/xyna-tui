@@ -318,12 +318,46 @@ def parse_dashboard_info(uptime_raw: str, listsysteminfo_raw: str, version_raw: 
     server_version = _extract(r"Server version:\s*(.+)$", version_raw, flags=re.MULTILINE) or "unknown"
     xmom_version = _extract(r"XMOM version:\s*(.+)$", version_raw, flags=re.MULTILINE) or "unknown"
     os_info = _extract(r"Operating System:\s*(.+)$", listsysteminfo_raw, flags=re.MULTILINE) or "unknown"
+
+    host_mem_match = re.search(
+        r"([\d,]+)\s*kB free memory\s*/\s*([\d,]+)\s*kB total memory",
+        listsysteminfo_raw,
+    )
+    host_memory_free_kb = _to_int(host_mem_match.group(1)) if host_mem_match else None
+    host_memory_total_kb = _to_int(host_mem_match.group(2)) if host_mem_match else None
+
+    jvm_heap_match = re.search(
+        r"([\d,]+)\s*kB actively occupied by objects within heap",
+        listsysteminfo_raw,
+    )
+    jvm_heap_current_match = re.search(
+        r"([\d,]+)\s*kB current total heap size",
+        listsysteminfo_raw,
+    )
+    jvm_heap_max_match = re.search(
+        r"([\d,]+)\s*kB max heap size",
+        listsysteminfo_raw,
+    )
+
+    cpu_usage_match = re.search(
+        r"CPU(?:\s+usage|\s+load)?\s*:\s*([0-9]+(?:\.[0-9]+)?)\s*%",
+        listsysteminfo_raw,
+        flags=re.IGNORECASE,
+    )
+    cpu_usage_percent = float(cpu_usage_match.group(1)) if cpu_usage_match else None
+
     return DashboardInfo(
         factory_state="UP_AND_RUNNING",
         uptime=uptime,
         server_version=server_version,
         xmom_version=xmom_version,
         os_info=os_info,
+        host_memory_free_kb=host_memory_free_kb,
+        host_memory_total_kb=host_memory_total_kb,
+        jvm_heap_used_kb=_to_int(jvm_heap_match.group(1)) if jvm_heap_match else None,
+        jvm_heap_current_kb=_to_int(jvm_heap_current_match.group(1)) if jvm_heap_current_match else None,
+        jvm_heap_max_kb=_to_int(jvm_heap_max_match.group(1)) if jvm_heap_max_match else None,
+        cpu_usage_percent=cpu_usage_percent,
     )
 
 
@@ -514,6 +548,10 @@ def parse_application_details(raw: str) -> ApplicationDetailsRecord:
 def _extract(pattern: str, text: str, flags: int = 0) -> str | None:
     match = re.search(pattern, text, flags)
     return match.group(1).strip() if match else None
+
+
+def _to_int(value: str) -> int:
+    return int(value.replace(",", "").strip())
 
 
 def as_rows(items: list[Any], columns: list[str]) -> list[tuple[Any, ...]]:

@@ -82,6 +82,12 @@ class DashboardInfo:
     server_version: str
     xmom_version: str
     os_info: str
+    host_memory_free_kb: int | None
+    host_memory_total_kb: int | None
+    jvm_heap_used_kb: int | None
+    jvm_heap_current_kb: int | None
+    jvm_heap_max_kb: int | None
+    cpu_usage_percent: float | None
 
 
 @dataclass(slots=True)

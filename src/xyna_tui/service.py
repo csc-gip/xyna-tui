@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from .gateway import XynaGateway
 from .models import (
     ApplicationRecord,
@@ -37,13 +39,58 @@ class XynaService:
     def __init__(self, gateway: XynaGateway) -> None:
         self.gateway = gateway
         self._deployment_state_cache: dict[tuple[str, str, str | None, str | None], str] = {}
+        self._last_cpu_total: int | None = None
+        self._last_cpu_idle: int | None = None
 
     def dashboard(self) -> DashboardInfo:
-        return parse_dashboard_info(
+        dashboard = parse_dashboard_info(
             uptime_raw=self.gateway.execute("uptime"),
             listsysteminfo_raw=self.gateway.execute("listsysteminfo"),
             version_raw=self.gateway.execute("version"),
         )
+        if dashboard.cpu_usage_percent is None:
+            dashboard.cpu_usage_percent = self._sample_cpu_usage_percent()
+        return dashboard
+
+    def _sample_cpu_usage_percent(self) -> float | None:
+        try:
+            with open("/proc/stat", "r", encoding="utf-8") as stat_file:
+                first = stat_file.readline().strip()
+            if not first.startswith("cpu "):
+                return self._load_average_cpu_percent()
+
+            parts = first.split()[1:]
+            values = [int(p) for p in parts]
+            if len(values) < 4:
+                return self._load_average_cpu_percent()
+
+            idle = values[3] + (values[4] if len(values) > 4 else 0)
+            total = sum(values)
+
+            if self._last_cpu_total is None or self._last_cpu_idle is None:
+                self._last_cpu_total = total
+                self._last_cpu_idle = idle
+                return self._load_average_cpu_percent()
+
+            total_delta = total - self._last_cpu_total
+            idle_delta = idle - self._last_cpu_idle
+            self._last_cpu_total = total
+            self._last_cpu_idle = idle
+            if total_delta <= 0:
+                return self._load_average_cpu_percent()
+
+            used_fraction = (total_delta - idle_delta) / total_delta
+            return max(0.0, min(100.0, used_fraction * 100.0))
+        except Exception:
+            return self._load_average_cpu_percent()
+
+    def _load_average_cpu_percent(self) -> float | None:
+        try:
+            one_min_load = os.getloadavg()[0]
+            cpu_count = os.cpu_count() or 1
+            return max(0.0, min(100.0, (one_min_load / cpu_count) * 100.0))
+        except Exception:
+            return None
 
     def workspaces(self) -> list[WorkspaceRecord]:
         return parse_workspaces_table(self.gateway.execute("listworkspaces -t"))
