@@ -29,6 +29,7 @@ class PropertyRecord:
     default_value: str
     reader: str
     unused: bool
+    documentation: str = ""
 
 
 @dataclass(slots=True)

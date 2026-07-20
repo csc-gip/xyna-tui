@@ -28,7 +28,7 @@ def test_parse_properties_verbose_handles_not_defined_and_reader() -> None:
 
     assert len(rows) == 2
     assert rows[0].name == "a.b.c"
-    assert rows[0].value == "not"
+    assert rows[0].value == "not defined"
     assert rows[0].default_value == "x"
     assert rows[0].reader == "XynaFactory 'Comp'"
     assert rows[1].unused is True
