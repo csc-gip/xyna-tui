@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import Callable
 
 from .gateway import XynaGateway
@@ -27,6 +28,7 @@ from .parsers import (
     parse_listwfs_names,
     parse_listwfs_records,
     parse_named_name_lines,
+    parse_properties,
     parse_properties_verbose,
     parse_printdependencies_tree_lines,
     parse_runtime_dependencies,
@@ -99,8 +101,208 @@ class XynaService:
     def applications(self) -> list[ApplicationRecord]:
         return parse_applications_table(self.gateway.execute("listapplications -t"))
 
-    def properties(self) -> list[PropertyRecord]:
-        return parse_properties_verbose(self.gateway.execute("listproperties -v"))
+    def properties(
+        self,
+        mode: str = "verbose",
+        include_documentation: bool = False,
+    ) -> list[PropertyRecord]:
+        return parse_properties(self.gateway.execute(self._listproperties_command(mode, include_documentation)))
+
+    def property_details(self, property_name: str, fallback: PropertyRecord | None = None) -> PropertyRecord:
+        quoted_name = property_name.replace('"', '\\"')
+        raw_en = self.gateway.execute(f'get -key "{quoted_name}" -d -v -lang EN')
+        raw_de = self.gateway.execute(f'get -key "{quoted_name}" -d -v -lang DE')
+        parsed_en = parse_properties(raw_en)
+        parsed_de = parse_properties(raw_de)
+
+        record_en = next((record for record in parsed_en if record.name == property_name), None)
+        record_de = next((record for record in parsed_de if record.name == property_name), None)
+
+        en_doc, _ = self.split_property_documentation(
+            record_en.documentation if record_en is not None else "",
+            strip_wrapping_quotes=False,
+        )
+        _, de_doc = self.split_property_documentation(
+            record_de.documentation if record_de is not None else "",
+            strip_wrapping_quotes=False,
+        )
+
+        documentation = self.compose_property_documentation(
+            en_doc,
+            de_doc,
+        )
+        value = (
+            (record_en.value if record_en is not None else "")
+            or (record_de.value if record_de is not None else "")
+            or (fallback.value if fallback else "")
+        )
+
+        if fallback is not None and (fallback.reader or fallback.default_value or fallback.unused):
+            return PropertyRecord(
+                name=property_name,
+                value=value,
+                default_value=fallback.default_value,
+                reader=fallback.reader,
+                unused=fallback.unused,
+                documentation=documentation,
+            )
+
+        for record in self.properties(mode="extraverbose", include_documentation=False):
+            if record.name == property_name:
+                return PropertyRecord(
+                    name=property_name,
+                    value=value or record.value,
+                    default_value=record.default_value,
+                    reader=record.reader,
+                    unused=record.unused,
+                    documentation=documentation,
+                )
+
+        if fallback is not None:
+            return PropertyRecord(
+                name=property_name,
+                value=value,
+                default_value=fallback.default_value,
+                reader=fallback.reader,
+                unused=fallback.unused,
+                documentation=documentation,
+            )
+
+        raise KeyError(f"Unknown property: {property_name}")
+
+    def set_property(self, property_name: str, value: str) -> str:
+        quoted_name = property_name.replace('"', '\\"')
+        quoted_value = value.replace('"', '\\"')
+        return self.gateway.execute(f'set -key "{quoted_name}" -value "{quoted_value}"')
+
+    def reset_property(self, property_name: str) -> str:
+        quoted_name = property_name.replace('"', '\\"')
+        return self.gateway.execute(f'removeproperty -key "{quoted_name}"')
+
+    def set_property_documentation(
+        self,
+        property_name: str,
+        documentation: str,
+        language: str = "EN",
+    ) -> str:
+        quoted_name = property_name.replace('"', '\\"')
+        quoted_doc = documentation.replace('"', '\\"')
+        quoted_lang = language.replace('"', '\\"')
+        return self.gateway.execute(
+            f'setpropertydocumentation -key "{quoted_name}" -language "{quoted_lang}" '
+            f'-documentation "{quoted_doc}"'
+        )
+
+    def normalize_property_documentation(self, documentation: str) -> str:
+        lines = [line.rstrip() for line in documentation.splitlines()]
+        while lines and not lines[-1].strip():
+            lines.pop()
+        return "\n".join(lines).strip()
+
+    def split_property_documentation(
+        self,
+        documentation: str,
+        strip_wrapping_quotes: bool = True,
+    ) -> tuple[str, str]:
+        normalized = self.normalize_property_documentation(documentation)
+        if not normalized:
+            return "", ""
+
+        marker = re.compile(r"^\s*(EN|DE)\s*:\s*(.*)$", re.IGNORECASE)
+        current_lang: str | None = None
+        en_lines: list[str] = []
+        de_lines: list[str] = []
+
+        def target_lines(language: str | None) -> list[str]:
+            if language == "DE":
+                return de_lines
+            return en_lines
+
+        for line in normalized.splitlines():
+            match = marker.match(line)
+            if match:
+                current_lang = match.group(1).upper()
+                target_lines(current_lang).append(match.group(2))
+                continue
+            target_lines(current_lang).append(line)
+
+        en_text = self.normalize_property_documentation("\n".join(en_lines))
+        de_text = self.normalize_property_documentation("\n".join(de_lines))
+
+        if strip_wrapping_quotes:
+            en_text = self._strip_wrapping_quotes(en_text)
+            de_text = self._strip_wrapping_quotes(de_text)
+
+        return (en_text, de_text)
+
+    def _strip_wrapping_quotes(self, text: str) -> str:
+        normalized = self.normalize_property_documentation(text)
+        if len(normalized) >= 2 and normalized[0] == normalized[-1] and normalized[0] in {"'", '"'}:
+            return normalized[1:-1].strip()
+        return normalized
+
+    def compose_property_documentation(self, documentation_en: str, documentation_de: str) -> str:
+        en = self.normalize_property_documentation(documentation_en)
+        de = self.normalize_property_documentation(documentation_de)
+        parts: list[str] = []
+        if en:
+            parts.extend(f"EN: {line}" for line in en.splitlines())
+        if de:
+            parts.extend(f"DE: {line}" for line in de.splitlines())
+        return "\n".join(parts)
+
+    def property_documentation_updates(self, documentation: str) -> list[tuple[str, str]]:
+        normalized = self.normalize_property_documentation(documentation)
+        if not normalized:
+            return [("EN", "")]
+
+        marker = re.compile(r"^\s*(EN|DE)\s*:\s*(.*)$", re.IGNORECASE)
+        entries: list[tuple[str, str]] = []
+        current_lang: str | None = None
+        current_lines: list[str] = []
+        explicit_languages = False
+
+        def flush_current() -> None:
+            nonlocal current_lang, current_lines
+            if current_lang is None:
+                return
+            text = self.normalize_property_documentation("\n".join(current_lines))
+            entries.append((current_lang, text))
+
+        for line in normalized.splitlines():
+            match = marker.match(line)
+            if match:
+                explicit_languages = True
+                flush_current()
+                current_lang = match.group(1).upper()
+                current_lines = [match.group(2)]
+                continue
+            if current_lang is None:
+                current_lang = "EN"
+                current_lines = [line]
+            else:
+                current_lines.append(line)
+
+        flush_current()
+
+        if not explicit_languages:
+            return [("EN", normalized)]
+
+        deduped: list[tuple[str, str]] = []
+        for lang, text in entries:
+            deduped = [(existing_lang, existing_text) for existing_lang, existing_text in deduped if existing_lang != lang]
+            deduped.append((lang, text))
+        return deduped
+
+    def _listproperties_command(self, mode: str, include_documentation: bool) -> str:
+        cmd = "listproperties"
+        if include_documentation:
+            cmd += " -showdoc"
+        if mode == "verbose":
+            cmd += " -v"
+        elif mode == "extraverbose":
+            cmd += " -vv"
+        return cmd
 
     def dependencies(self) -> list[DependencyRecord]:
         return parse_runtime_dependencies(self.gateway.execute("listruntimecontextdependencies"))

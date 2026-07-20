@@ -11,7 +11,7 @@ from textual.binding import Binding
 from textual.containers import Grid, Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
 from textual.theme import Theme
-from textual.widgets import DataTable, Header, Input, Static, TabbedContent, TabPane, Tree
+from textual.widgets import DataTable, Header, Input, Select, Static, TabbedContent, TabPane, TextArea, Tree
 
 from .dependency_tree import (
     application_context,
@@ -28,6 +28,7 @@ from .models import (
     DependencyRecord,
     DeploymentItemRecord,
     ObjectSelectionRecord,
+    PropertyRecord,
     WorkspaceDetailsRecord,
     WorkspaceRecord,
 )
@@ -784,9 +785,11 @@ class KeybindingsScreen(ModalScreen[None]):
                 "  n            Workspace: create\n"
                 "  c            Workspace: clear\n"
                 "  Delete       Workspace: remove\n"
+                "  u            Property: reset to default\n"
                 "  d            Show Dependency Tree\n"
                 "  i            Show Item Details\n"
                 "  o            Show Object Dependencies\n"
+                "  /            Property: focus name filter\n"
                 "  ?            Show this help\n"
                 "  q            Quit"
             )
@@ -1087,6 +1090,118 @@ class WorkspaceNameScreen(ModalScreen[str | None]):
         self.dismiss(None)
 
 
+class PropertyDetailsScreen(ModalScreen[tuple[str, str, str] | None]):
+    CSS = """
+    PropertyDetailsScreen {
+        background: #0f1419 85%;
+        align: center middle;
+    }
+    #property-details-panel {
+        width: 110;
+        max-width: 95%;
+        height: auto;
+        max-height: 90%;
+        border: round $primary;
+        background: #0f1419;
+        color: #ffffff;
+        padding: 1 2;
+    }
+    #property-details-title {
+        color: $primary;
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    #property-value-input {
+        margin: 1 0;
+    }
+    #property-documentation-en-input,
+    #property-documentation-de-input {
+        height: 6;
+        margin-top: 1;
+        border: tall $primary;
+        background: #11161c;
+        color: #ffffff;
+    }
+    #property-meta {
+        color: #dfe7ef;
+    }
+    #property-doc-en-label,
+    #property-doc-de-label {
+        margin-top: 1;
+    }
+    """
+    BINDINGS = [
+        Binding("ctrl+s", "save", "Save", priority=True),
+        Binding("escape", "cancel", "Cancel", priority=True),
+        Binding("ctrl+g", "cancel", "Cancel", priority=True),
+        Binding("tab", "next_field", "Next Field", priority=True),
+        Binding("shift+tab", "previous_field", "Previous Field", priority=True),
+    ]
+
+    def __init__(self, record: PropertyRecord, documentation_en: str = "", documentation_de: str = "") -> None:
+        super().__init__()
+        self.record = record
+        self.documentation_en = documentation_en
+        self.documentation_de = documentation_de
+
+    def compose(self) -> ComposeResult:
+        default_text = self.record.default_value or "-"
+        reader_text = self.record.reader or "-"
+        unused_text = "yes" if self.record.unused else "no"
+        value_text = "" if self.record.value == "not defined" else self.record.value
+        with ScrollableContainer(id="property-details-panel"):
+            yield Static(f"Property Details: {self.record.name}", id="property-details-title")
+            yield Static(
+                f"Reader: {reader_text}\nDefault: {default_text}\nUnused: {unused_text}",
+                id="property-meta",
+            )
+            yield Static("Value")
+            yield Input(value=value_text, placeholder="property value", id="property-value-input")
+            yield Static("Documentation (EN)", id="property-doc-en-label")
+            yield TextArea(
+                self.documentation_en,
+                id="property-documentation-en-input",
+                soft_wrap=True,
+                tab_behavior="focus",
+            )
+            yield Static("Documentation (DE)", id="property-doc-de-label")
+            yield TextArea(
+                self.documentation_de,
+                id="property-documentation-de-input",
+                soft_wrap=True,
+                tab_behavior="focus",
+            )
+            yield Static("Ctrl+S: save  |  Tab/Shift+Tab: switch field  |  Esc/Ctrl+G: cancel")
+
+    def on_mount(self) -> None:
+        self.query_one("#property-value-input", Input).focus()
+
+    def action_next_field(self) -> None:
+        self._cycle_focus(direction=1)
+
+    def action_previous_field(self) -> None:
+        self._cycle_focus(direction=-1)
+
+    def _cycle_focus(self, direction: int) -> None:
+        fields = [
+            self.query_one("#property-value-input", Input),
+            self.query_one("#property-documentation-en-input", TextArea),
+            self.query_one("#property-documentation-de-input", TextArea),
+        ]
+        focused = self.focused
+        idx = fields.index(focused) if focused in fields else 0
+        fields[(idx + direction) % len(fields)].focus()
+
+    def action_save(self) -> None:
+        value = self.query_one("#property-value-input", Input).value
+        documentation_en = self.query_one("#property-documentation-en-input", TextArea).text
+        documentation_de = self.query_one("#property-documentation-de-input", TextArea).text
+        self.dismiss((value, documentation_en, documentation_de))
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+
 class ObjectSelectionScreen(ModalScreen[ObjectSelectionRecord | None]):
     CSS = """
     ObjectSelectionScreen {
@@ -1217,6 +1332,27 @@ class XynaTUIApplication(App[None]):
         border: round $primary;
     }
 
+    #properties-panel {
+        layout: vertical;
+        padding: 1;
+    }
+
+    #properties-toolbar {
+        height: auto;
+        margin-bottom: 1;
+    }
+
+    #properties-mode-select {
+        width: 24;
+        margin-right: 1;
+    }
+
+    #property-name-filter,
+    #property-value-filter {
+        width: 1fr;
+        margin-right: 1;
+    }
+
     Tree {
         color: #ffffff;
         background: #11161c;
@@ -1234,6 +1370,7 @@ class XynaTUIApplication(App[None]):
         Binding("ctrl+p", "command_palette", "Command Palette", priority=True),
         Binding("ctrl+shift+p", "command_palette", "Command Palette", priority=True),
         Binding("f1", "command_palette", "Command Palette", priority=True),
+        Binding("slash", "focus_primary_filter", "Focus Filter"),
         Binding("x", "execute_primary_action", "Execute Action"),
         Binding("shift+x", "execute_secondary_action", "Execute Secondary Action"),
         Binding("X", "execute_secondary_action", "Execute Secondary Action"),
@@ -1241,6 +1378,7 @@ class XynaTUIApplication(App[None]):
         Binding("n", "workspace_create", "Create Workspace"),
         Binding("c", "workspace_clear", "Clear Workspace"),
         Binding("delete", "workspace_remove", "Remove Workspace"),
+        Binding("u", "property_reset", "Reset Property"),
         Binding("d", "show_dependency_tree", "Dependency Tree"),
         Binding("i", "show_selected_details", "Details"),
         Binding("o", "show_object_dependencies", "Object Dependencies"),
@@ -1254,6 +1392,9 @@ class XynaTUIApplication(App[None]):
         self._workspace_records: list[WorkspaceRecord] = []
         self._application_records: list[ApplicationRecord] = []
         self._dependency_records: list[DependencyRecord] = []
+        self._property_records: list[PropertyRecord] = []
+        self._filtered_property_records: list[PropertyRecord] = []
+        self._property_list_mode = "verbose"
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -1271,7 +1412,17 @@ class XynaTUIApplication(App[None]):
             with TabPane("Applications", id="applications"):
                 yield DataTable(id="applications-table")
             with TabPane("Properties", id="properties"):
-                yield DataTable(id="properties-table")
+                with Vertical(id="properties-panel"):
+                    with Horizontal(id="properties-toolbar"):
+                        yield Select(
+                            [("List", "basic"), ("Values (-v)", "verbose"), ("All (-vv)", "extraverbose")],
+                            value="verbose",
+                            allow_blank=False,
+                            id="properties-mode-select",
+                        )
+                        yield Input(placeholder="Filter by property name", id="property-name-filter")
+                        yield Input(placeholder="Filter by property value", id="property-value-filter")
+                    yield DataTable(id="properties-table")
             with TabPane("Dependencies", id="dependencies"):
                 yield Tree("Runtime Context Dependencies", id="dependencies-tree")
             with TabPane("Triggers", id="triggers"):
@@ -1296,9 +1447,9 @@ class XynaTUIApplication(App[None]):
         tab_actions = {
             "workspaces": "x Refresh | X Refresh and Deploy | n Create | c Clear | Del Remove | d Dependency Tree | i Details | o Object Dependencies",
             "applications": "x Start/Stop Application | d Dependency Tree | i Details | o Object Dependencies",
+            "properties": "i Details/Edit | u Reset | / Focus Name Filter",
             "dependencies": "Navigate tree with arrows",
             "dashboard": "",
-            "properties": "",
             "triggers": "",
             "filters": "",
         }
@@ -1322,11 +1473,7 @@ class XynaTUIApplication(App[None]):
             ["name", "version", "workspace", "status", "objects", "revision"],
             self._application_records,
         )
-        self._fill_table(
-            "#properties-table",
-            ["name", "value", "default_value", "reader", "unused"],
-            self.service.properties(),
-        )
+        self._refresh_properties_data()
         self._dependency_records = self.service.dependencies()
         self._fill_dependency_tree()
 
@@ -1350,6 +1497,23 @@ class XynaTUIApplication(App[None]):
             trigger_records,
             filter_records,
         )
+
+    def _refresh_properties_data(self) -> None:
+        self._property_records = self.service.properties(mode=self._property_list_mode)
+        self._render_properties_table()
+
+    def _render_properties_table(self) -> None:
+        name_filter = self.query_one("#property-name-filter", Input).value.strip().lower()
+        value_filter = self.query_one("#property-value-filter", Input).value.strip().lower()
+        self._filtered_property_records = [
+            record
+            for record in self._property_records
+            if (not name_filter or name_filter in record.name.lower())
+            and (not value_filter or value_filter in record.value.lower())
+        ]
+
+        columns = ["name", "value", "default_value", "reader", "unused"]
+        self._fill_table("#properties-table", columns, self._filtered_property_records)
 
     def _render_dashboard_summary(
         self,
@@ -1518,6 +1682,15 @@ class XynaTUIApplication(App[None]):
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         return
 
+    def on_input_changed(self, event: Input.Changed) -> None:
+        if event.input.id in {"property-name-filter", "property-value-filter"}:
+            self._render_properties_table()
+
+    def on_select_changed(self, event: Select.Changed) -> None:
+        if event.select.id == "properties-mode-select":
+            self._property_list_mode = str(event.value)
+            self._refresh_properties_data()
+
     def action_show_dependency_tree(self) -> None:
         tabbed = self.query_one(TabbedContent)
 
@@ -1557,11 +1730,24 @@ class XynaTUIApplication(App[None]):
                     return
                 self.push_screen(ApplicationDetailsScreen(details, self._dependency_records, self.service))
                 return
+
+            if tabbed.active == "properties":
+                prop = self._selected_property_record()
+                if not prop:
+                    self.notify("No property selected", severity="warning")
+                    return
+                details = self.service.property_details(prop.name, fallback=prop)
+                doc_en, doc_de = self.service.split_property_documentation(details.documentation)
+                self.push_screen(
+                    PropertyDetailsScreen(details, documentation_en=doc_en, documentation_de=doc_de),
+                    lambda result: self._on_property_details_saved(details, result),
+                )
+                return
         except Exception as exc:
             self.notify(f"Could not load details: {exc}", severity="error")
             return
 
-        self.notify("Open Workspaces or Applications to view details", severity="information")
+        self.notify("Open Workspaces, Applications, or Properties to view details", severity="information")
 
     def action_show_object_dependencies(self) -> None:
         tabbed = self.query_one(TabbedContent)
@@ -1618,6 +1804,13 @@ class XynaTUIApplication(App[None]):
             return
 
         self.notify("Open Workspaces or Applications to view object dependencies", severity="information")
+
+    def action_focus_primary_filter(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+        if tabbed.active == "properties":
+            self.query_one("#property-name-filter", Input).focus()
+            return
+        self.notify("Filter shortcut is available on the Properties tab", severity="information")
 
     def action_show_keybindings(self) -> None:
         self.push_screen(KeybindingsScreen())
@@ -1781,6 +1974,84 @@ class XynaTUIApplication(App[None]):
         idx = table.cursor_row if table.cursor_row >= 0 else 0
         idx = min(idx, len(self._workspace_records) - 1)
         return self._workspace_records[idx]
+
+    def _selected_property_record(self) -> PropertyRecord | None:
+        if not self._filtered_property_records:
+            return None
+        table = self.query_one("#properties-table", DataTable)
+        idx = table.cursor_row if table.cursor_row >= 0 else 0
+        idx = min(idx, len(self._filtered_property_records) - 1)
+        return self._filtered_property_records[idx]
+
+    def _on_property_details_saved(
+        self,
+        original: PropertyRecord,
+        result: tuple[str, str, str] | None,
+    ) -> None:
+        if result is None:
+            return
+        value, documentation_en, documentation_de = result
+        asyncio.create_task(self._run_property_update(original, value, documentation_en, documentation_de))
+
+    async def _run_property_update(
+        self,
+        original: PropertyRecord,
+        value: str,
+        documentation_en: str,
+        documentation_de: str,
+    ) -> None:
+        modal = BusyCommandScreen(f"set property {original.name}")
+        self.push_screen(modal)
+        try:
+            original_value = "" if original.value == "not defined" else original.value
+            normalized_new_doc = self.service.normalize_property_documentation(
+                self.service.compose_property_documentation(documentation_en, documentation_de)
+            )
+            normalized_original_doc = self.service.normalize_property_documentation(original.documentation)
+            if value != original_value:
+                await asyncio.to_thread(self.service.set_property, original.name, value)
+            if normalized_new_doc != normalized_original_doc:
+                await asyncio.to_thread(
+                    self.service.set_property_documentation,
+                    original.name,
+                    self.service.normalize_property_documentation(documentation_en),
+                    "EN",
+                )
+                await asyncio.to_thread(
+                    self.service.set_property_documentation,
+                    original.name,
+                    self.service.normalize_property_documentation(documentation_de),
+                    "DE",
+                )
+            self.action_refresh_data()
+            modal.dismiss()
+        except Exception as exc:
+            modal.mark_done(False, f"Property update failed: {exc}")
+
+    def action_property_reset(self) -> None:
+        tabbed = self.query_one(TabbedContent)
+        if tabbed.active != "properties":
+            self.notify("Reset property is available on the Properties tab", severity="information")
+            return
+        prop = self._selected_property_record()
+        if prop is None:
+            self.notify("No property selected", severity="warning")
+            return
+        asyncio.create_task(self._run_property_reset(prop.name))
+
+    async def _run_property_reset(self, property_name: str) -> None:
+        modal = BusyCommandScreen(f"reset property {property_name}")
+        self.push_screen(modal)
+        try:
+            details = await asyncio.to_thread(self.service.property_details, property_name)
+            if not details.default_value:
+                modal.mark_done(False, "Reset failed: property has no default value")
+                return
+            await asyncio.to_thread(self.service.reset_property, property_name)
+            self.action_refresh_data()
+            modal.dismiss()
+        except Exception as exc:
+            modal.mark_done(False, f"Reset property failed: {exc}")
 
     def _show_object_dependencies_for_workspace(
         self,

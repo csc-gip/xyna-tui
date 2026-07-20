@@ -113,7 +113,9 @@ class MockXynaGateway:
             "version": ("status.txt", "version"),
             "listworkspaces -t": ("listworkspaces.txt", "listworkspaces -t"),
             "listapplications -t": ("listapplications.txt", "listapplications -t"),
+            "listproperties": ("listproperties.txt", "listproperties -"),
             "listproperties -v": ("listproperties.txt", "listproperties -v"),
+            "listproperties -vv": ("listproperties.txt", "listproperties -vv"),
             "listruntimecontextdependencies": (
                 "runtimecontextdependencies.txt",
                 "listruntimecontextdependencies",
@@ -190,6 +192,22 @@ class MockXynaGateway:
 
     def execute(self, command: str) -> str:
         if command not in self._fixtures:
+            if command.startswith("listproperties"):
+                if " -showdoc" in command:
+                    base_command = command.replace(" -showdoc", "")
+                    base_output = self.execute(base_command.strip())
+                    lines: list[str] = []
+                    for line in base_output.splitlines():
+                        if not line.startswith("Name: "):
+                            lines.append(line)
+                            continue
+                        if " Reader:" in line:
+                            lines.append(line.replace(" Reader:", " Documentation:  Reader:"))
+                        elif "  UNUSED" in line:
+                            lines.append(line.replace("  UNUSED", " Documentation:  UNUSED"))
+                        else:
+                            lines.append(f"{line} Documentation:")
+                    return "\n".join(lines)
             if command.startswith("refreshworkspace"):
                 return "Workspace refreshed"
             if command.startswith("createworkspace"):
@@ -198,6 +216,46 @@ class MockXynaGateway:
                 return "Workspace cleared"
             if command.startswith("removeworkspace"):
                 return "Workspace removed"
+            if command.startswith("removeproperty"):
+                return "Property removed"
+            if command.startswith("setpropertydocumentation"):
+                return "Property documentation updated"
+            if command.startswith("set -key"):
+                return "Property updated"
+            if command.startswith("get -key"):
+                match = re.search(r'-key\s+"([^"]+)"', command)
+                prop_name = match.group(1) if match else ""
+                lang_match = re.search(r'-lang\s+(?:"([^"]+)"|(\S+))', command)
+                requested_lang = (lang_match.group(1) or lang_match.group(2) or "").upper() if lang_match else ""
+                value = ""
+                documentation = ""
+                for record in parse_properties(self.execute("listproperties -showdoc -vv")):
+                    if record.name != prop_name:
+                        continue
+                    value = record.value
+                    documentation = record.documentation
+                    break
+                if requested_lang in {"EN", "DE"} and documentation:
+                    marker = re.compile(r"^\s*(EN|DE)\s*:\s*(.*)$", re.IGNORECASE)
+                    lines: list[str] = []
+                    current_lang: str | None = None
+                    for line in documentation.splitlines():
+                        line_match = marker.match(line)
+                        if line_match:
+                            current_lang = line_match.group(1).upper()
+                            content = line_match.group(2)
+                        else:
+                            content = line
+                        if current_lang == requested_lang:
+                            lines.append(content.rstrip())
+                    documentation = "\n".join([line for line in lines if line.strip()])
+                    if documentation:
+                        documentation = "\n".join(
+                            f"{requested_lang}: {line}" for line in documentation.splitlines()
+                        )
+                value_fragment = f" Value: '{value}'" if value else ""
+                doc_fragment = f" Documentation: {documentation}" if " -d" in command and documentation else ""
+                return f"Name: {prop_name}{value_fragment}{doc_fragment}".strip()
             if command.startswith("startapplication"):
                 return "Application started"
             if command.startswith("stopapplication"):

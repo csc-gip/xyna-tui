@@ -4,10 +4,11 @@ from pathlib import Path
 
 import pytest
 from textual.binding import Binding
-from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
+from textual.widgets import DataTable, Input, Select, Static, TabbedContent, Tree
 
 from xyna_tui.app import build_app
 from xyna_tui.fixtures import repo_root_from_here
+from xyna_tui.models import PropertyRecord
 
 
 def _assert_screenshot(app, output_dir: Path, name: str) -> Path:
@@ -430,5 +431,116 @@ async def test_workspace_create_modal_accepts_names_with_spaces() -> None:
         await pilot.pause()
 
     assert calls == ["alpha beta"]
+
+
+@pytest.mark.asyncio
+async def test_properties_filters_and_mode_switching() -> None:
+    app = build_app(repo_root_from_here(), use_mock=True)
+
+    calls: list[str] = []
+    basic_records = [
+        PropertyRecord(name="alpha.property", value="", default_value="", reader="Reader A", unused=False),
+        PropertyRecord(name="beta.property", value="", default_value="", reader="Reader B", unused=False),
+    ]
+    verbose_records = [
+        PropertyRecord(name="alpha.property", value="localhost", default_value="", reader="Reader A", unused=False),
+        PropertyRecord(name="beta.property", value="false", default_value="true", reader="Reader B", unused=False),
+    ]
+
+    def _fake_properties(mode: str = "verbose", include_documentation: bool = False):
+        calls.append(mode)
+        return basic_records if mode == "basic" else verbose_records
+
+    async with app.run_test() as pilot:
+        app.service.properties = _fake_properties  # type: ignore[method-assign]
+        app.action_refresh_data()
+        await pilot.pause()
+
+        tabs = app.query_one(TabbedContent)
+        tabs.active = "properties"
+        await pilot.pause()
+
+        table = app.query_one("#properties-table", DataTable)
+        assert table.row_count == 2
+
+        name_filter = app.query_one("#property-name-filter", Input)
+        name_filter.value = "beta"
+        await pilot.pause()
+        assert table.row_count == 1
+        assert str(table.get_row_at(0)[0]) == "beta.property"
+
+        name_filter.value = ""
+        value_filter = app.query_one("#property-value-filter", Input)
+        value_filter.value = "localhost"
+        await pilot.pause()
+        assert table.row_count == 1
+        assert str(table.get_row_at(0)[0]) == "alpha.property"
+
+        value_filter.value = ""
+        mode_select = app.query_one("#properties-mode-select", Select)
+        mode_select.value = "basic"
+        await pilot.pause()
+        assert calls[-1] == "basic"
+
+
+@pytest.mark.asyncio
+async def test_property_details_modal_updates_value_and_documentation() -> None:
+    app = build_app(repo_root_from_here(), use_mock=True)
+
+    property_record = PropertyRecord(
+        name="xyna.default.monitoringlevel",
+        value="20",
+        default_value="5",
+        reader="XynaFactory 'MonitoringDispatcher'",
+        unused=False,
+        documentation="Old doc",
+    )
+    updates: list[tuple[str, str, str]] = []
+    refresh_count = 0
+
+    def _fake_properties(mode: str = "verbose", include_documentation: bool = False):
+        return [property_record]
+
+    def _fake_property_details(name: str, fallback: PropertyRecord | None = None) -> PropertyRecord:
+        assert name == property_record.name
+        return property_record
+
+    def _fake_set_property(name: str, value: str) -> None:
+        updates.append(("value", name, value))
+
+    def _fake_set_property_documentation(name: str, documentation: str, language: str = "EN") -> None:
+        updates.append((f"documentation:{language}", name, documentation))
+
+    def _fake_refresh_data() -> None:
+        nonlocal refresh_count
+        refresh_count += 1
+
+    async with app.run_test() as pilot:
+        app.service.properties = _fake_properties  # type: ignore[method-assign]
+        app.service.property_details = _fake_property_details  # type: ignore[method-assign]
+        app.service.set_property = _fake_set_property  # type: ignore[method-assign]
+        app.service.set_property_documentation = _fake_set_property_documentation  # type: ignore[method-assign]
+        app.action_refresh_data = _fake_refresh_data  # type: ignore[method-assign]
+        app._refresh_properties_data()
+        await pilot.pause()
+
+        tabs = app.query_one(TabbedContent)
+        tabs.active = "properties"
+        await pilot.pause()
+
+        table = app.query_one("#properties-table", DataTable)
+        table.move_cursor(row=0, column=0)
+
+        app.action_show_selected_details()
+        await pilot.pause()
+        app.screen.dismiss(("10", "New doc", "Neuer Text"))
+        await pilot.pause()
+
+    assert updates == [
+        ("value", "xyna.default.monitoringlevel", "10"),
+        ("documentation:EN", "xyna.default.monitoringlevel", "New doc"),
+        ("documentation:DE", "xyna.default.monitoringlevel", "Neuer Text"),
+    ]
+    assert refresh_count == 1
 
 

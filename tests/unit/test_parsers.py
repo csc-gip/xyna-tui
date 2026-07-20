@@ -4,6 +4,7 @@ from xyna_tui.fixtures import extract_command_output, fixture_path, load_text, r
 from xyna_tui.parsers import (
     parse_applications_table,
     parse_dashboard_info,
+    parse_properties,
     parse_properties_verbose,
     parse_runtime_dependencies,
     parse_workspaces_table,
@@ -41,6 +42,39 @@ def test_parse_properties_verbose() -> None:
 
     assert len(records) == 26
     assert any(r.name == "xyna.rmi.port.registry" for r in records)
+
+
+def test_parse_properties_with_documentation() -> None:
+    raw = (
+        "Name: xyna.default.monitoringlevel Value: '20' Documentation: EN: 'Default level:' Reader: XynaFactory 'MonitoringDispatcher'\n"
+        "5 = default\n"
+    )
+
+    records = parse_properties(raw)
+
+    assert len(records) == 1
+    assert records[0].documentation == "EN: 'Default level:'\n5 = default"
+
+
+def test_parse_properties_ignores_wrapped_unused_fragment_in_documentation() -> None:
+    raw = (
+        "Name: xyna.test.prop Value: 'true' Documentation: EN: 'This is a test documentation\n"
+        "' UNUSED\n"
+    )
+
+    records = parse_properties(raw)
+
+    assert len(records) == 1
+    assert records[0].documentation == "EN: 'This is a test documentation"
+
+
+def test_parse_properties_strips_inline_unused_suffix_from_documentation() -> None:
+    raw = "Name: xyna.test.prop Value: 'true' Documentation: EN: 'This is a test documentation' UNUSED"
+
+    records = parse_properties(raw)
+
+    assert len(records) == 1
+    assert records[0].documentation == "EN: 'This is a test documentation'"
 
 
 def test_parse_runtime_dependencies() -> None:

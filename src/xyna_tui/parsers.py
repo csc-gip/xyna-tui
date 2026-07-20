@@ -103,26 +103,94 @@ def parse_applications_table(raw: str) -> list[ApplicationRecord]:
     return records
 
 
-def parse_properties_verbose(raw: str) -> list[PropertyRecord]:
+def parse_properties(raw: str) -> list[PropertyRecord]:
     records: list[PropertyRecord] = []
-    for line in raw.splitlines():
-        line = line.strip()
-        if not line.startswith("Name: "):
+    current: PropertyRecord | None = None
+
+    for raw_line in raw.splitlines():
+        line = raw_line.rstrip()
+        stripped = line.strip()
+        if not stripped or stripped.startswith("Listing information for "):
             continue
-        name = _extract(r"Name:\s+(.+?)(?:\s+Value:|\s+Default value:|\s+Reader:|\s+UNUSED$)", line)
-        value = _extract(r"Value:\s+'([^']*)'", line) or _extract(r"Value:\s+([^ ]+)", line)
-        default = _extract(r"Default value:\s+'([^']*)'", line) or _extract(r"Default value:\s+([^ ]+)", line)
-        reader = _extract(r"Reader:\s+(.+)$", line)
-        records.append(
-            PropertyRecord(
-                name=name or "",
-                value=value or "not defined",
-                default_value=default or "",
-                reader=reader or "",
-                unused="UNUSED" in line,
+        if stripped.startswith("Name: "):
+            if current is not None:
+                records.append(current)
+            current = PropertyRecord(
+                name=_extract_property_field(stripped, "Name:") or "",
+                value=_normalize_property_value(_extract_property_field(stripped, "Value:")),
+                default_value=_normalize_property_value(_extract_property_field(stripped, "Default value:")),
+                reader=_extract_property_field(stripped, "Reader:") or "",
+                unused="UNUSED" in stripped,
+                documentation=_normalize_property_documentation(
+                    _extract_property_field(stripped, "Documentation:") or ""
+                ),
             )
-        )
+            continue
+        if current is not None and current.documentation:
+            current.documentation = _append_property_documentation_line(current.documentation, stripped)
+
+    if current is not None:
+        records.append(current)
     return records
+
+
+def parse_properties_verbose(raw: str) -> list[PropertyRecord]:
+    return parse_properties(raw)
+
+
+def _extract_property_field(line: str, marker: str) -> str | None:
+    markers = [" Value:", " Default value:", " Documentation:", " Reader:", "  UNUSED"]
+    try:
+        start = line.index(marker) + len(marker)
+    except ValueError:
+        return None
+
+    end = len(line)
+    for next_marker in markers:
+        if next_marker.strip() == marker.strip():
+            continue
+        idx = line.find(next_marker, start)
+        if idx != -1:
+            end = min(end, idx)
+    return line[start:end].strip()
+
+
+def _normalize_property_value(value: str | None) -> str:
+    if value is None:
+        return ""
+    text = value.strip()
+    if len(text) >= 2 and text.startswith("'") and text.endswith("'"):
+        return text[1:-1]
+    return text
+
+
+def _append_property_documentation_line(current: str, line: str) -> str:
+    cleaned = _normalize_property_documentation_line(line)
+    if not cleaned:
+        return current
+    return f"{current}\n{cleaned}" if current else cleaned
+
+
+def _normalize_property_documentation(text: str) -> str:
+    lines = [_normalize_property_documentation_line(line) for line in text.splitlines()]
+    normalized = [line for line in lines if line]
+    return "\n".join(normalized)
+
+
+def _normalize_property_documentation_line(line: str) -> str:
+    stripped = line.rstrip()
+    compact = stripped.strip()
+    # Wrapped metadata fragments are not part of documentation content.
+    if not compact:
+        return ""
+    if compact.startswith("Reader:"):
+        return ""
+    if compact in {"UNUSED", "' UNUSED", '" UNUSED'}:
+        return ""
+    compact = re.sub(r"\s+UNUSED$", "", compact)
+    if compact in {"'", '"'}:
+        return ""
+    return compact.strip()
 
 
 def parse_runtime_dependencies(raw: str) -> list[DependencyRecord]:
